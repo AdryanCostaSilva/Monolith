@@ -1,0 +1,313 @@
+{
+  "dataset": {
+    "file": "smoke_sample.csv",
+    "format": "csv",
+    "encoding": "utf-8-sig",
+    "delimiter": ",",
+    "rows": 4,
+    "columns": 4
+  },
+  "profile": {
+    "dataset": {
+      "rows": 4,
+      "columns": 4,
+      "missing_percentage": 18.75,
+      "duplicate_rows": 1
+    },
+    "columns": {
+      "Age": {
+        "type": "float64",
+        "missing_percentage": 25.0,
+        "unique_count": 2,
+        "numbers_stored_as_text": false,
+        "statistics": {
+          "count": 3.0,
+          "mean": 30.666666666666668,
+          "std": 7.505553499465135,
+          "min": 22.0,
+          "25%": 28.5,
+          "50%": 35.0,
+          "75%": 35.0,
+          "max": 35.0
+        }
+      },
+      "Cabin": {
+        "type": "str",
+        "missing_percentage": 50.0,
+        "unique_count": 1,
+        "numbers_stored_as_text": false,
+        "top_values": [
+          {
+            "value": "E46",
+            "count": 2
+          }
+        ]
+      },
+      "Embarked": {
+        "type": "str",
+        "missing_percentage": 0.0,
+        "unique_count": 3,
+        "numbers_stored_as_text": false,
+        "top_values": [
+          {
+            "value": "Q",
+            "count": 2
+          },
+          {
+            "value": "S",
+            "count": 1
+          },
+          {
+            "value": "C",
+            "count": 1
+          }
+        ]
+      },
+      "Survived": {
+        "type": "int64",
+        "missing_percentage": 0.0,
+        "unique_count": 2,
+        "numbers_stored_as_text": false,
+        "statistics": {
+          "count": 4.0,
+          "mean": 0.5,
+          "std": 0.5773502691896257,
+          "min": 0.0,
+          "25%": 0.0,
+          "50%": 0.5,
+          "75%": 1.0,
+          "max": 1.0
+        }
+      }
+    }
+  },
+  "context": {
+    "project_goal": "Predict passenger survival",
+    "task_type": "classification",
+    "target_column": "Survived",
+    "important_columns": [
+      "Survived"
+    ],
+    "notes": "",
+    "documentation": {
+      "variable_descriptions": false,
+      "target_definition": false,
+      "data_collection": false,
+      "collection_period": false,
+      "units_and_categories": false,
+      "known_limitations": false
+    },
+    "provenance": {
+      "origin": false,
+      "collector": false,
+      "generation_period": false,
+      "transformations": false,
+      "version": false
+    }
+  },
+  "result": {
+    "score": 58.25,
+    "classification": "Requires preparation",
+    "dimensions": [
+      {
+        "dimension": "Completeness",
+        "applicable": true,
+        "score": 70.31,
+        "indicators": [
+          {
+            "name": "% filled cells",
+            "value": 81.25,
+            "weight": 1
+          },
+          {
+            "name": "% columns with less than 20% missing",
+            "value": 50.0,
+            "weight": 1
+          },
+          {
+            "name": "% complete rows",
+            "value": 50.0,
+            "weight": 1
+          },
+          {
+            "name": "% filled in important columns",
+            "value": 100.0,
+            "weight": 1
+          }
+        ],
+        "problems": [
+          "Column 'Age' has 25.0% missing values",
+          "Column 'Cabin' has 50.0% missing values"
+        ],
+        "recommendations": [
+          "Remove or impute the missing values in column 'Age'",
+          "Remove or impute the missing values in column 'Cabin'"
+        ]
+      },
+      {
+        "dimension": "Consistency",
+        "applicable": true,
+        "score": 91.67,
+        "indicators": [
+          {
+            "name": "% non-duplicate rows",
+            "value": 75.0,
+            "weight": 1
+          },
+          {
+            "name": "% columns with consistent types",
+            "value": 100.0,
+            "weight": 1
+          },
+          {
+            "name": "% categorical columns without text variants",
+            "value": 100.0,
+            "weight": 1
+          }
+        ],
+        "problems": [
+          "Dataset has 1 duplicate row(s)"
+        ],
+        "recommendations": [
+          "Review and remove duplicate rows"
+        ]
+      },
+      {
+        "dimension": "Class Balance",
+        "applicable": true,
+        "score": 100.0,
+        "indicators": [
+          {
+            "name": "Minority-to-majority class ratio",
+            "value": 100.0,
+            "weight": 1
+          }
+        ],
+        "problems": [],
+        "recommendations": []
+      },
+      {
+        "dimension": "Documentation",
+        "applicable": true,
+        "score": 0.0,
+        "indicators": [
+          {
+            "name": "Variable descriptions",
+            "value": 0.0,
+            "weight": 1
+          },
+          {
+            "name": "Target definition",
+            "value": 0.0,
+            "weight": 1
+          },
+          {
+            "name": "Data collection method",
+            "value": 0.0,
+            "weight": 1
+          },
+          {
+            "name": "Collection period",
+            "value": 0.0,
+            "weight": 1
+          },
+          {
+            "name": "Units and categories",
+            "value": 0.0,
+            "weight": 1
+          },
+          {
+            "name": "Known limitations",
+            "value": 0.0,
+            "weight": 1
+          }
+        ],
+        "problems": [
+          "Missing documentation: variable descriptions",
+          "Missing documentation: target definition",
+          "Missing documentation: data collection method",
+          "Missing documentation: collection period",
+          "Missing documentation: units and categories",
+          "Missing documentation: known limitations"
+        ],
+        "recommendations": [
+          "Document the variable descriptions",
+          "Document the target definition",
+          "Document the data collection method",
+          "Document the collection period",
+          "Document the units and categories",
+          "Document the known limitations"
+        ]
+      },
+      {
+        "dimension": "Provenance",
+        "applicable": true,
+        "score": 0.0,
+        "indicators": [
+          {
+            "name": "Data origin",
+            "value": 0.0,
+            "weight": 1
+          },
+          {
+            "name": "Data collector",
+            "value": 0.0,
+            "weight": 1
+          },
+          {
+            "name": "Generation period",
+            "value": 0.0,
+            "weight": 1
+          },
+          {
+            "name": "Applied transformations",
+            "value": 0.0,
+            "weight": 1
+          },
+          {
+            "name": "Dataset version",
+            "value": 0.0,
+            "weight": 1
+          }
+        ],
+        "problems": [
+          "Missing provenance: data origin",
+          "Missing provenance: data collector",
+          "Missing provenance: generation period",
+          "Missing provenance: applied transformations",
+          "Missing provenance: dataset version"
+        ],
+        "recommendations": [
+          "Record the data origin",
+          "Record the data collector",
+          "Record the generation period",
+          "Record the applied transformations",
+          "Record the dataset version"
+        ]
+      },
+      {
+        "dimension": "Data Quality",
+        "applicable": true,
+        "score": 87.5,
+        "indicators": [
+          {
+            "name": "% numeric values without outliers",
+            "value": 100.0,
+            "weight": 1
+          },
+          {
+            "name": "% non-constant columns",
+            "value": 75.0,
+            "weight": 1
+          }
+        ],
+        "problems": [
+          "Column 'Cabin' is constant"
+        ],
+        "recommendations": [
+          "Remove column 'Cabin' if it is not required"
+        ]
+      }
+    ]
+  }
+}

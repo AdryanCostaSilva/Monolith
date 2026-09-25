@@ -12,11 +12,11 @@
 ---
 
 ## 0. Setup — 15 min
-- [ ] Create a `src/` folder in the repo root, and inside it: `entrada/`, `profiling/`, `avaliacao/`, `agregacao/`, `relatorio/`, `ui/`. Put an empty `__init__.py` in `src/` and in each subfolder. Run everything from the repo root (`python main.py`).
-- [ ] Create `main.py` in the repo root. Its only job is to start the UI.
-- [ ] Create `src/config.py` for the weights, thresholds and score bands (one place to change them, which covers RNF04)
-- [ ] Create `datasets/` for the demo files
-- [ ] Agree on the **result contract** below so the engine and the UI can be built in parallel
+- [X] Create a `src/` folder in the repo root, and inside it: `entrada/`, `profiling/`, `avaliacao/`, `agregacao/`, `relatorio/`, `ui/`. Put an empty `__init__.py` in `src/` and in each subfolder. Run everything from the repo root (`python main.py`).
+- [X] Create `main.py` in the repo root. Its only job is to start the UI.
+- [X] Create `src/config.py` for the weights, thresholds and score bands (one place to change them, which covers RNF04)
+- [X] Create `datasets/` for the demo files
+- [X] Agree on the **result contract** below so the engine and the UI can be built in parallel
 
 ### Result contract (agree on this first)
 ```python
@@ -41,14 +41,14 @@
 ---
 
 ## 1. Loader — `src/entrada/loader.py` — 45 min
-- [ ] `carregar(caminho) -> (df, info)`
-- [ ] CSV: detect the delimiter (`csv.Sniffer`, from `, ; \t |`)
-- [ ] CSV: try `utf-8`, then fall back to `latin-1`
-- [ ] CSV: if the separator is `;`, use `decimal=","`
-- [ ] XLSX: `pd.read_excel` (openpyxl is already in requirements)
-- [ ] Extension check is case-insensitive (`.CSV` works)
-- [ ] Validate the result: file not empty, more than 1 column, no duplicate column names. Raise a clear error message otherwise.
-- [ ] `info` = `{arquivo, formato, encoding, separador, linhas, colunas}`
+- [X] `load(path) -> (df, info)`
+- [X] CSV: detect the delimiter (`csv.Sniffer`, from `, ; \t |`)
+- [X] CSV: try `utf-8-sig`, then fall back to `latin-1`
+- [X] CSV: if the separator is `;`, use `decimal=","`
+- [X] XLSX: `pd.read_excel` (openpyxl is already in requirements)
+- [X] Extension check is case-insensitive (`.CSV` works)
+- [X] Validate the result: file not empty, more than 1 column, no duplicate column **names**. Raise a clear error message otherwise. (Duplicate **rows** are not the loader's job; they go to `consistencia.py` in step 4.)
+- [X] `info` = `{file, format, encoding, delimiter, rows, columns}`
 - **Done when:** a `,`/UTF-8 CSV, a `;`/Latin-1 CSV and an `.xlsx` all load correctly
 
 ## 2. Profiler — `src/profiling/profiler.py` — 45 min

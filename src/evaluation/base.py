@@ -1,8 +1,11 @@
+from src.config import DEFAULT_INDICATOR_WEIGHT
+
+
 def percentage(part, total, empty=100.0):
     return round(float(part) / total * 100, 2) if total else empty
 
 
-def indicator(name, value, weight=1):
+def indicator(name, value, weight=DEFAULT_INDICATOR_WEIGHT):
     return {"name": name, "value": round(float(value), 2), "weight": weight}
 
 

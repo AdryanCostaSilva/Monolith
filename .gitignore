@@ -16,3 +16,6 @@ venv/
 .idea/
 Thumbs.db
 desktop.ini
+
+# Test dataset
+iris_dataset.csv

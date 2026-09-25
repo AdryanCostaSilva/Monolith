@@ -86,10 +86,10 @@ Each one returns the contract dict. Every indicator is on a 0–100 scale.
 - [X] Every problem found also adds a recommendation (plain rule-based text, no AI)
 
 ## 5. Aggregator — `src/aggregation/aggregator.py` — 30 min
-- [ ] `D_j = Σ(w_i · I_i) / Σ w_i` (one score per dimension)
-- [ ] `DR = Σ(W_j · D_j) / Σ W_j`, **only over applicable dimensions** (the remaining weights renormalize automatically)
-- [ ] v1: equal weights, defined in `config.py`
-- [ ] Score bands (preliminary, in `config.py`):
+- [X] `D_j = Σ(w_i · I_i) / Σ w_i` (one score per dimension)
+- [X] `DR = Σ(W_j · D_j) / Σ W_j`, **only over applicable dimensions** (the remaining weights renormalize automatically)
+- [X] v1: equal weights, defined in `config.py`
+- [X] Score bands (preliminary, in `config.py`):
   - 0–49 → Not ready
   - 50–74 → Requires preparation
   - 75–89 → Almost ready

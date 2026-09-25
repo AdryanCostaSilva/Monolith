@@ -1,5 +1,5 @@
 from pathlib import Path
-from tkinter import BooleanVar, filedialog
+from tkinter import BooleanVar, filedialog, ttk
 
 import customtkinter as ctk
 
@@ -139,7 +139,12 @@ class DataReadinessApp(ctk.CTk):
         ctk.CTkLabel(form, text="Target column", anchor="w").grid(
             row=0, column=2, sticky="ew", padx=8, pady=(8, 2)
         )
-        self.target_menu = ctk.CTkOptionMenu(form, values=[NO_TARGET])
+        self.target_menu = ttk.Combobox(
+            form,
+            values=[NO_TARGET],
+            state="readonly",
+            height=12,
+        )
         self.target_menu.set(NO_TARGET)
         self.target_menu.grid(row=1, column=2, sticky="ew", padx=8, pady=(0, 10))
 

@@ -103,8 +103,8 @@ Each one returns the contract dict. Every indicator is on a 0–100 scale.
 - [X] Content: dataset info, score + band, score per dimension, problems, the indicators behind each score, recommendations
 
 ## 7. Engine smoke test (no UI) — 20 min
-- [ ] `demo/run_demo.py`: load → profile → evaluate → aggregate → report, for every dataset in `datasets/`
-- [ ] Run it twice and confirm the scores are identical (RNF02: reproducible)
+- [X] `demo/run_demo.py`: load → profile → evaluate → aggregate → report, for every dataset in `datasets/`
+- [X] Run it twice and confirm the scores are identical (RNF02: reproducible)
 
 ## 8. UI — `src/ui/main_window.py` (CustomTkinter) — 2 h
 Move `DataReadinessApp` out of `app.py`. **No analysis logic in the UI.** It only calls the engine.

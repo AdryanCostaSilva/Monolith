@@ -53,7 +53,7 @@ def _profile_column(series):
     return profile
 
 
-def perfilar(df):
+def profile(df):
     """Return dataset and column-level profiling data without changing the dataframe."""
     rows, column_count = df.shape
     total_cells = rows * column_count

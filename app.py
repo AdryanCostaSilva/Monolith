@@ -1,11 +1,10 @@
-# TODO: separar este arquivo nos módulos definidos na arquitetura (PBL 4):
-#   - src/entrada/loader.py        -> leitura e validação do dataset
-#   - src/profiling/profiler.py    -> cálculo de tipos, ausentes, únicos, estatísticas
-#   - src/avaliacao/*.py           -> avaliadores por dimensão (Completude, Consistência etc.)
-#   - src/agregacao/agregador.py   -> normalização e cálculo do Data Readiness Score
-#   - src/relatorio/gerador_relatorio.py -> montagem do resultado final
-#   - src/ui/main_window.py        -> esta classe DataReadinessApp, sem lógica de análise
-# Por enquanto está tudo em um único arquivo apenas para fins de demonstração (PBL 5).
+# TODO: split this file into the modules defined by the PBL 4 architecture:
+#   - src/loading/loader.py
+#   - src/profiling/profiler.py
+#   - src/evaluation/*.py
+#   - src/aggregation/aggregator.py
+#   - src/reporting/report_generator.py
+#   - src/ui/main_window.py
 
 import customtkinter as ctk
 from tkinter import filedialog
@@ -25,131 +24,127 @@ class DataReadinessApp(ctk.CTk):
 
         self.df = None
 
-        self._montar_interface()
+        self._build_interface()
 
-    def _montar_interface(self):
-        # Cabeçalho
+    def _build_interface(self):
         header = ctk.CTkFrame(self, fg_color="transparent")
         header.pack(fill="x", padx=20, pady=(20, 10))
 
-        titulo = ctk.CTkLabel(
+        title_label = ctk.CTkLabel(
             header,
             text="Data Readiness Framework",
             font=ctk.CTkFont(size=22, weight="bold")
         )
-        titulo.pack(side="left")
+        title_label.pack(side="left")
 
         self.btn_upload = ctk.CTkButton(
             header,
-            text="📂 Carregar Dataset",
-            command=self.carregar_dataset,
+            text="📂 Load Dataset",
+            command=self.load_dataset,
             width=180
         )
         self.btn_upload.pack(side="right")
 
-        # Status do dataset carregado
         self.label_status = ctk.CTkLabel(
             self,
-            text="Nenhum dataset carregado.",
+            text="No dataset loaded.",
             font=ctk.CTkFont(size=13),
             text_color="gray"
         )
         self.label_status.pack(anchor="w", padx=20, pady=(0, 10))
 
-        # Cards de resumo (linhas, colunas, % ausentes)
         cards_frame = ctk.CTkFrame(self, fg_color="transparent")
         cards_frame.pack(fill="x", padx=20, pady=(0, 15))
 
-        self.card_linhas = self._criar_card(cards_frame, "Linhas", "-")
-        self.card_colunas = self._criar_card(cards_frame, "Colunas", "-")
-        self.card_ausentes = self._criar_card(cards_frame, "% Ausentes", "-")
+        self.card_rows = self._create_card(cards_frame, "Rows", "-")
+        self.card_columns = self._create_card(cards_frame, "Columns", "-")
+        self.card_missing = self._create_card(cards_frame, "% Missing", "-")
 
-        # Área de resultado detalhado (profiling)
-        self.textbox_resultado = ctk.CTkTextbox(
+        self.result_textbox = ctk.CTkTextbox(
             self,
             font=ctk.CTkFont(family="Consolas", size=13)
         )
-        self.textbox_resultado.pack(fill="both", expand=True, padx=20, pady=(0, 20))
-        self.textbox_resultado.insert(
+        self.result_textbox.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+        self.result_textbox.insert(
             "1.0",
-            "Carregue um dataset (.csv ou .xlsx) para visualizar o profiling básico."
+            "Load a dataset (.csv or .xlsx) to view its basic profile."
         )
-        self.textbox_resultado.configure(state="disabled")
+        self.result_textbox.configure(state="disabled")
 
-    def _criar_card(self, parent, titulo, valor_inicial):
+    def _create_card(self, parent, title, initial_value):
         card = ctk.CTkFrame(parent, corner_radius=10)
         card.pack(side="left", expand=True, fill="x", padx=5)
 
-        label_titulo = ctk.CTkLabel(
-            card, text=titulo, font=ctk.CTkFont(size=12), text_color="gray"
+        title_label = ctk.CTkLabel(
+            card, text=title, font=ctk.CTkFont(size=12), text_color="gray"
         )
-        label_titulo.pack(pady=(10, 0))
+        title_label.pack(pady=(10, 0))
 
-        label_valor = ctk.CTkLabel(
-            card, text=valor_inicial, font=ctk.CTkFont(size=20, weight="bold")
+        value_label = ctk.CTkLabel(
+            card, text=initial_value, font=ctk.CTkFont(size=20, weight="bold")
         )
-        label_valor.pack(pady=(0, 10))
+        value_label.pack(pady=(0, 10))
 
-        card.label_valor = label_valor
+        card.value_label = value_label
         return card
 
-    def carregar_dataset(self):
-        caminho = filedialog.askopenfilename(
+    def load_dataset(self):
+        path = filedialog.askopenfilename(
             filetypes=[("CSV files", "*.csv"), ("Excel files", "*.xlsx")]
         )
-        if not caminho:
+        if not path:
             return
 
         try:
-            if caminho.endswith(".csv"):
-                self.df = pd.read_csv(caminho)
+            if path.endswith(".csv"):
+                self.df = pd.read_csv(path)
             else:
-                self.df = pd.read_excel(caminho)
-        except Exception as e:
-            self._exibir_erro(f"Erro ao carregar o arquivo: {e}")
+                self.df = pd.read_excel(path)
+        except Exception as error:
+            self._show_error(f"Error loading the file: {error}")
             return
 
-        nome_arquivo = caminho.split("/")[-1]
+        file_name = path.split("/")[-1]
         self.label_status.configure(
-            text=f"Dataset carregado: {nome_arquivo}",
+            text=f"Dataset loaded: {file_name}",
             text_color="lightgreen"
         )
 
-        self._atualizar_cards()
-        self._mostrar_profiling()
+        self._update_cards()
+        self._show_profile()
 
-    def _atualizar_cards(self):
-        linhas, colunas = self.df.shape
-        total_celulas = linhas * colunas
-        pct_ausentes = (self.df.isnull().sum().sum() / total_celulas) * 100
+    def _update_cards(self):
+        rows, columns = self.df.shape
+        total_cells = rows * columns
+        missing_percentage = (self.df.isnull().sum().sum() / total_cells) * 100
 
-        self.card_linhas.label_valor.configure(text=str(linhas))
-        self.card_colunas.label_valor.configure(text=str(colunas))
-        self.card_ausentes.label_valor.configure(text=f"{pct_ausentes:.1f}%")
+        self.card_rows.value_label.configure(text=str(rows))
+        self.card_columns.value_label.configure(text=str(columns))
+        self.card_missing.value_label.configure(text=f"{missing_percentage:.1f}%")
 
-    def _mostrar_profiling(self):
-        texto = "=== TIPOS DE COLUNAS ===\n"
-        texto += str(self.df.dtypes) + "\n\n"
+    def _show_profile(self):
+        text = "=== COLUMN TYPES ===\n"
+        text += str(self.df.dtypes) + "\n\n"
 
-        texto += "=== VALORES AUSENTES POR COLUNA ===\n"
-        texto += str(self.df.isnull().sum()) + "\n\n"
+        text += "=== MISSING VALUES BY COLUMN ===\n"
+        text += str(self.df.isnull().sum()) + "\n\n"
 
-        texto += "=== VALORES ÚNICOS POR COLUNA ===\n"
-        texto += str(self.df.nunique()) + "\n\n"
+        text += "=== UNIQUE VALUES BY COLUMN ===\n"
+        text += str(self.df.nunique()) + "\n\n"
 
-        texto += "=== ESTATÍSTICAS DESCRITIVAS ===\n"
-        texto += str(self.df.describe())
+        text += "=== DESCRIPTIVE STATISTICS ===\n"
+        text += str(self.df.describe())
 
-        self.textbox_resultado.configure(state="normal")
-        self.textbox_resultado.delete("1.0", "end")
-        self.textbox_resultado.insert("1.0", texto)
-        self.textbox_resultado.configure(state="disabled")
+        self.result_textbox.configure(state="normal")
+        self.result_textbox.delete("1.0", "end")
+        self.result_textbox.insert("1.0", text)
+        self.result_textbox.configure(state="disabled")
 
-    def _exibir_erro(self, mensagem):
-        self.textbox_resultado.configure(state="normal")
-        self.textbox_resultado.delete("1.0", "end")
-        self.textbox_resultado.insert("1.0", mensagem)
-        self.textbox_resultado.configure(state="disabled")
+    def _show_error(self, message):
+        self.result_textbox.configure(state="normal")
+        self.result_textbox.delete("1.0", "end")
+        self.result_textbox.insert("1.0", message)
+        self.result_textbox.configure(state="disabled")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 
-TASK_TYPES = ("classificação", "regressão", "outro")
+TASK_TYPES = ("classification", "regression", "other")
 
 DOCUMENTATION_ITEMS = (
     "variable_descriptions",
@@ -33,9 +33,9 @@ def _validate_checklist(name, answers, items):
 
 
 @dataclass
-class ContextoUso:
+class UsageContext:
     project_goal: str
-    task_type: str = "outro"
+    task_type: str = "other"
     target_column: str | None = None
     important_columns: list[str] = field(default_factory=list)
     notes: str = ""

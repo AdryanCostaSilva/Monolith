@@ -108,12 +108,12 @@ Each one returns the contract dict. Every indicator is on a 0–100 scale.
 
 ## 8. UI — `src/ui/main_window.py` (CustomTkinter) — 2 h
 Move `DataReadinessApp` out of `app.py`. **No analysis logic in the UI.** It only calls the engine.
-- [ ] Screen 1 — **Load** (Use Case 1): pick a file, show the format detected, rows, columns, % missing (reuse the existing cards)
-- [ ] Screen 2 — **Context** (Use Case 2): task type dropdown, target dropdown (filled from the columns), checkboxes for important columns, the documentation and provenance checklists
-- [ ] Screen 3 — **Evaluate** (Use Case 3): an "Evaluate" button that runs the engine
-- [ ] Screen 4 — **Results** (Use Case 4): big score + band, a bar/card for each dimension, list of problems, list of recommendations, "Export report" button
-- [ ] Fix the old bugs: use `pathlib.Path(path).name` instead of `split("/")`, and make the extension check case-insensitive
-- [ ] Delete `app.py` (or turn it into a stub that calls `main.py`)
+- [X] Screen 1 — **Load** (Use Case 1): pick a file, show the format detected, rows, columns, % missing (reuse the existing cards)
+- [X] Screen 2 — **Context** (Use Case 2): task type dropdown, target dropdown (filled from the columns), checkboxes for important columns, the documentation and provenance checklists
+- [X] Screen 3 — **Evaluate** (Use Case 3): an "Evaluate" button that runs the engine
+- [X] Screen 4 — **Results** (Use Case 4): big score + band, a bar/card for each dimension, list of problems, list of recommendations, "Export report" button
+- [X] Fix the old bugs: use `pathlib.Path(path).name` instead of `split("/")`, and make the extension check case-insensitive
+- [X] Delete `app.py` (or turn it into a stub that calls `main.py`)
 
 ## 9. Demo scenario + evidence — 1 h
 - [ ] `datasets/titanic.csv`: clean-ish classification dataset, target `Survived`

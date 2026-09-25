@@ -52,10 +52,10 @@
 - **Done when:** a `,`/UTF-8 CSV, a `;`/Latin-1 CSV and an `.xlsx` all load correctly
 
 ## 2. Profiler — `src/profiling/profiler.py` — 45 min
-- [ ] `perfilar(df) -> dict`, which returns data only and never prints
-- [ ] Per column: type, % missing, unique count, basic stats (numeric) or top values (categorical)
-- [ ] Dataset level: rows, columns, % missing cells, duplicate rows
-- [ ] Flag "numbers stored as text": a text column where ≥ 90% of the values convert to numbers
+- [X] `perfilar(df) -> dict`, which returns data only and never prints
+- [X] Per column: type, % missing, unique count, basic stats (numeric) or top values (categorical)
+- [X] Dataset level: rows, columns, % missing cells, duplicate rows
+- [X] Flag "numbers stored as text": a text column where ≥ 90% of the values convert to numbers
 - **Done when:** `perfilar(titanic)` shows Age/Cabin/Embarked with missing values
 
 ## 3. Usage context — 20 min

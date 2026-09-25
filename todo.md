@@ -59,9 +59,9 @@
 - **Done when:** `perfilar(titanic)` shows Age/Cabin/Embarked with missing values
 
 ## 3. Usage context — 20 min
-- [ ] `ContextoUso` (a dataclass or dict) with: project goal, task type (`classificação` / `regressão` / `outro`), target column (optional), important columns, notes
-- [ ] Documentation checklist (6 yes/no answers): variable descriptions, target definition, how data was collected, collection period, units/categories, known limitations
-- [ ] Provenance checklist (5 yes/no answers): origin, who collected it, generation period, transformations applied, version
+- [X] `ContextoUso` (a dataclass or dict) with: project goal, task type (`classificação` / `regressão` / `outro`), target column (optional), important columns, notes
+- [X] Documentation checklist (6 yes/no answers): variable descriptions, target definition, how data was collected, collection period, units/categories, known limitations
+- [X] Provenance checklist (5 yes/no answers): origin, who collected it, generation period, transformations applied, version
 
 ## 4. Evaluators — `src/avaliacao/` — 2 h
 Each one returns the contract dict. Every indicator is on a 0–100 scale.

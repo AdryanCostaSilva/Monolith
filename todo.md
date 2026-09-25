@@ -97,10 +97,10 @@ Each one returns the contract dict. Every indicator is on a 0–100 scale.
 - **Done when:** removing Class Balance (regression task) does not lower the score
 
 ## 6. Report — `src/reporting/report_generator.py` — 30 min
-- [ ] `generate_report(info, profile, context, result) -> dict`
-- [ ] Export to **JSON** (full data)
-- [ ] Export to **HTML or TXT** (readable, for the evidence folder)
-- [ ] Content: dataset info, score + band, score per dimension, problems, the indicators behind each score, recommendations
+- [X] `generate_report(info, profile, context, result) -> dict`
+- [X] Export to **JSON** (full data)
+- [X] Export to **HTML or TXT** (readable, for the evidence folder)
+- [X] Content: dataset info, score + band, score per dimension, problems, the indicators behind each score, recommendations
 
 ## 7. Engine smoke test (no UI) — 20 min
 - [ ] `demo/run_demo.py`: load → profile → evaluate → aggregate → report, for every dataset in `datasets/`

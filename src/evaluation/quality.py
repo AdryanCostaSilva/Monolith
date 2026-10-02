@@ -1,6 +1,7 @@
 from pandas.api.types import is_bool_dtype, is_numeric_dtype
 
 from src.evaluation.base import add_problem, indicator, percentage, result
+from src.profiling.values import value_counts
 
 
 def _count_outliers(series):
@@ -13,7 +14,7 @@ def _count_outliers(series):
     return count, len(values)
 
 
-def evaluate(df):
+def evaluate(df, dataset_profile=None):
     numeric_columns = [
         name
         for name in df.columns
@@ -30,7 +31,11 @@ def evaluate(df):
             outliers_by_column[name] = count
 
     constant_columns = [
-        name for name in df.columns if df[name].nunique(dropna=True) <= 1
+        name for name in df.columns
+        if (
+            dataset_profile["columns"][name]["unique_count"]
+            if dataset_profile is not None else len(value_counts(df[name]))
+        ) <= 1
     ]
     indicators = [
         indicator(

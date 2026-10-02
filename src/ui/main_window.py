@@ -1,4 +1,6 @@
 from pathlib import Path
+from queue import Empty, Queue
+from threading import Thread
 from tkinter import BooleanVar, filedialog, ttk
 
 import customtkinter as ctk
@@ -33,6 +35,7 @@ class DataReadinessApp(ctk.CTk):
         self.important_vars = {}
         self.documentation_vars = {}
         self.provenance_vars = {}
+        self._busy = False
 
         self._build_interface()
 
@@ -73,12 +76,13 @@ class DataReadinessApp(ctk.CTk):
             text="Load a dataset",
             font=ctk.CTkFont(size=20, weight="bold"),
         ).pack(side="left")
-        ctk.CTkButton(
+        self.load_button = ctk.CTkButton(
             top,
-            text="Choose CSV or XLSX",
+            text="Choose CSV, XLSX or Parquet",
             command=self._load_dataset,
-            width=180,
-        ).pack(side="right")
+            width=230,
+        )
+        self.load_button.pack(side="right")
 
         self.load_status = ctk.CTkLabel(
             tab, text="No dataset loaded.", text_color="gray", anchor="w"
@@ -296,22 +300,40 @@ class DataReadinessApp(ctk.CTk):
         self.export_status.grid(row=3, column=0, sticky="w", padx=14, pady=(0, 8))
 
     def _load_dataset(self):
+        if self._busy:
+            return
         selected = filedialog.askopenfilename(
             filetypes=[
-                ("Supported datasets", "*.csv *.CSV *.xlsx *.XLSX"),
+                ("Supported datasets", "*.csv *.CSV *.xlsx *.XLSX *.parquet *.PARQUET"),
                 ("CSV files", "*.csv *.CSV"),
                 ("Excel files", "*.xlsx *.XLSX"),
+                ("Parquet files", "*.parquet *.PARQUET"),
             ]
         )
         if not selected:
             return
 
-        try:
-            df, info = load(selected)
-            dataset_profile = profile(df)
-        except Exception as error:
-            self.load_status.configure(text=f"Error: {error}", text_color="#ff6b6b")
-            return
+        # Release the previous dataset before allocating a replacement.
+        self.df = self.info = self.dataset_profile = self.context = self.result = None
+        self._reset_results()
+        for value in self.summary_values.values():
+            value.configure(text="-")
+        self._set_text(self.profile_preview, "Loading and profiling dataset...")
+        self.load_status.configure(text="Loading dataset...", text_color="gray")
+
+        def work(progress):
+            df, info = load(selected, progress=progress)
+            return df, info, profile(df, progress=progress)
+
+        self._run_background(
+            work,
+            self._dataset_loaded,
+            lambda error: self.load_status.configure(text=f"Error: {error}", text_color="#ff6b6b"),
+            lambda message: self.load_status.configure(text=message, text_color="gray"),
+        )
+
+    def _dataset_loaded(self, loaded):
+        df, info, dataset_profile = loaded
 
         self.df = df
         self.info = info
@@ -319,7 +341,7 @@ class DataReadinessApp(ctk.CTk):
         self.context = None
         self.result = None
         self.load_status.configure(
-            text=f"Dataset loaded: {Path(selected).name}", text_color="#67d391"
+            text=f"Dataset loaded: {info['file']}", text_color="#67d391"
         )
         summary = dataset_profile["dataset"]
         values = {
@@ -335,6 +357,53 @@ class DataReadinessApp(ctk.CTk):
         self.evaluate_button.configure(state="normal")
         self._reset_context_controls()
         self._reset_results()
+
+    def _run_background(self, work, on_success, on_error, on_progress=None):
+        """Run one operation off the Tk thread; deliver all UI changes via after()."""
+        self._busy = True
+        buttons = (self.load_button, self.load_next_button, self.evaluate_button, self.export_button)
+        for button in buttons:
+            button.configure(state="disabled")
+        messages = Queue()
+
+        def worker():
+            try:
+                result = work(lambda message: messages.put(("progress", message)))
+                messages.put(("success", result))
+            except Exception as error:
+                messages.put(("error", str(error) or type(error).__name__))
+
+        def poll():
+            progress = None
+            while True:
+                try:
+                    kind, value = messages.get_nowait()
+                except Empty:
+                    if progress is not None and on_progress:
+                        on_progress(progress)
+                    self.after(100, poll)
+                    return
+                if kind == "progress":
+                    progress = value
+                    continue
+                self._busy = False
+                try:
+                    if kind == "success":
+                        on_success(value)
+                    else:
+                        on_error(value)
+                finally:
+                    self.load_button.configure(state="normal")
+                    state = "normal" if self.df is not None else "disabled"
+                    self.load_next_button.configure(state=state)
+                    self.evaluate_button.configure(state=state)
+                    self.export_button.configure(
+                        state="normal" if self.result is not None else "disabled"
+                    )
+                return
+
+        Thread(target=worker, daemon=True).start()
+        self.after(100, poll)
 
     def _profile_text(self):
         lines = ["COLUMN PROFILE", ""]
@@ -372,6 +441,8 @@ class DataReadinessApp(ctk.CTk):
         )
 
     def _save_context(self, navigate=True):
+        if self._busy:
+            return False
         if self.df is None:
             self.context_status.configure(
                 text="Load a dataset first.", text_color="#ff6b6b"
@@ -412,19 +483,23 @@ class DataReadinessApp(ctk.CTk):
         return True
 
     def _evaluate(self):
+        if self._busy:
+            return
         if not self._save_context(navigate=False):
             self.tabs.set(CONTEXT_TAB)
             return
         self.evaluation_status.configure(text="Evaluating...", text_color="gray")
-        self.update_idletasks()
-        try:
-            self.result = evaluate_dataset(self.df, self.context, self.dataset_profile)
-        except Exception as error:
-            self.evaluation_status.configure(
+        df, context, dataset_profile = self.df, self.context, self.dataset_profile
+        self._run_background(
+            lambda progress: evaluate_dataset(df, context, dataset_profile),
+            self._evaluation_complete,
+            lambda error: self.evaluation_status.configure(
                 text=f"Evaluation failed: {error}", text_color="#ff6b6b"
-            )
-            return
+            ),
+        )
 
+    def _evaluation_complete(self, result):
+        self.result = result
         self.evaluation_status.configure(text="Evaluation complete.", text_color="#67d391")
         self._show_results()
         self.tabs.set(RESULTS_TAB)

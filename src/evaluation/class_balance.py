@@ -1,4 +1,5 @@
 from src.evaluation.base import add_problem, indicator, percentage, result
+from src.profiling.values import is_nested, value_counts
 
 
 def evaluate(df, context):
@@ -7,7 +8,8 @@ def evaluate(df, context):
     if context.target_column not in df.columns:
         raise ValueError(f"Target column not found: {context.target_column}")
 
-    counts = df[context.target_column].value_counts(dropna=True)
+    target = df[context.target_column]
+    counts = value_counts(target) if is_nested(target) else target.value_counts(dropna=True)
     problems = []
     recommendations = []
 

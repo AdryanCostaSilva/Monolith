@@ -8,6 +8,7 @@ from src.evaluation import (
     evaluate_quality,
 )
 from src.profiling import profile
+from src.profiling.values import release_pages
 
 
 def evaluate_dataset(df, context, dataset_profile=None):
@@ -18,6 +19,7 @@ def evaluate_dataset(df, context, dataset_profile=None):
         evaluate_class_balance(df, context),
         evaluate_documentation(context),
         evaluate_provenance(context),
-        evaluate_quality(df),
+        evaluate_quality(df, dataset_profile),
     ]
+    release_pages(df)
     return aggregate(dimensions)

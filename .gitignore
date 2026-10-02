@@ -20,3 +20,8 @@ desktop.ini
 # Test dataset
 iris_dataset.csv
 evidenve/
+*.csv
+*.parquet
+*.xlsx
+*.html
+*.json

@@ -1,10 +1,13 @@
+import numpy as np
+import pandas as pd
+
 from src.evaluation.base import add_problem, indicator, percentage, result
 
 
 def evaluate(df, context):
     row_count, column_count = df.shape
     total_cells = row_count * column_count
-    missing_by_column = df.isna().sum()
+    missing_by_column = pd.Series({name: int(df[name].isna().sum()) for name in df.columns})
     important = list(dict.fromkeys(context.important_columns))
     missing_columns = [name for name in important if name not in df.columns]
     if missing_columns:
@@ -15,9 +18,12 @@ def evaluate(df, context):
     acceptable_columns = (
         int((missing_by_column / row_count < 0.2).sum()) if row_count else 0
     )
-    complete_rows = int(df.notna().all(axis=1).sum())
+    complete = np.ones(row_count, dtype=bool)
+    for name in df.columns:
+        complete &= df[name].notna().to_numpy(dtype=bool)
+    complete_rows = int(complete.sum())
     total_important = row_count * len(important)
-    filled_important = int(df[important].notna().sum().sum()) if important else 0
+    filled_important = total_important - int(missing_by_column[important].sum()) if important else 0
 
     indicators = [
         indicator("% filled cells", percentage(filled_cells, total_cells, 0.0)),

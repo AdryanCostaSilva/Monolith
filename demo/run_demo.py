@@ -21,6 +21,7 @@ from src.evaluation import (
 from src.loading import load
 from src.loading.loader import SUPPORTED_EXTENSIONS
 from src.profiling import profile
+from src.profiling.values import release_pages
 from src.reporting import export_html, export_json, generate_report
 
 
@@ -42,9 +43,10 @@ def run_dataset(path):
         evaluate_class_balance(df, context),
         evaluate_documentation(context),
         evaluate_provenance(context),
-        evaluate_quality(df),
+        evaluate_quality(df, dataset_profile),
     ]
     result = aggregate(dimensions)
+    release_pages(df)
     return generate_report(info, dataset_profile, context, result)
 
 
@@ -54,7 +56,7 @@ def main():
         if path.is_file() and path.suffix.lower() in SUPPORTED_EXTENSIONS
     )
     if not paths:
-        print("FAIL: Add a CSV or XLSX file to datasets/.")
+        print("FAIL: Add a CSV, XLSX or Parquet file to datasets/.")
         return 1
 
     failures = 0
@@ -65,7 +67,7 @@ def main():
             if first["result"] != second["result"]:
                 raise ValueError("Engine results differ between runs (RNF02).")
 
-            # Keep the input extension so sample.csv and sample.xlsx cannot collide.
+            # Keep the input extension so datasets with the same stem cannot collide.
             output = ROOT / "evidence" / "smoke_test" / path.name
             json_path = export_json(first, f"{output}.json")
             html_path = export_html(first, f"{output}.html")

@@ -1,6 +1,7 @@
 from numbers import Number
 
-from pandas.api.types import is_numeric_dtype
+import pandas as pd
+from pandas.api.types import is_numeric_dtype, is_object_dtype, is_string_dtype
 
 from src.evaluation.base import add_problem, indicator, percentage, result
 from src.profiling.profiler import profile
@@ -17,10 +18,19 @@ def _value_type(value):
 
 
 def _has_mixed_types(series):
-    return len({_value_type(value) for value in series.dropna()}) > 1
+    if not (is_object_dtype(series.dtype) or isinstance(series.dtype, pd.CategoricalDtype)):
+        return False
+    types = set()
+    for value in series.dropna():
+        types.add(_value_type(value))
+        if len(types) > 1:
+            return True
+    return False
 
 
 def _has_text_variants(series):
+    if not (is_object_dtype(series.dtype) or is_string_dtype(series.dtype) or isinstance(series.dtype, pd.CategoricalDtype)):
+        return False
     groups = {}
     for value in series.dropna().unique():
         if isinstance(value, str):
@@ -31,7 +41,7 @@ def _has_text_variants(series):
 def evaluate(df, dataset_profile=None):
     dataset_profile = dataset_profile or profile(df)
     row_count, column_count = df.shape
-    duplicate_count = int(df.duplicated().sum())
+    duplicate_count = dataset_profile["dataset"]["duplicate_rows"]
     inconsistent = []
     variant_columns = []
 

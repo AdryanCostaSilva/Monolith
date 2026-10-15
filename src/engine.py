@@ -10,7 +10,7 @@ from src.evaluation import (
 from src.profiling import profile
 
 
-def evaluate_dataset(df, context, dataset_profile=None):
+def evaluate_dataset(df, context, dataset_profile=None, *, dimension_weights=None):
     dataset_profile = dataset_profile or profile(df)
     dimensions = [
         evaluate_completeness(df, context),
@@ -20,4 +20,4 @@ def evaluate_dataset(df, context, dataset_profile=None):
         evaluate_provenance(context),
         evaluate_quality(df),
     ]
-    return aggregate(dimensions)
+    return aggregate(dimensions, context.task_type, dimension_weights)

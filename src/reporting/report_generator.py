@@ -45,6 +45,12 @@ def _list(items):
 
 def _dimension_html(dimension):
     score = dimension["score"] if dimension["applicable"] else "Not applicable"
+    weight_note = ""
+    if dimension.get("weight") is not None:
+        weight_note = (
+            f"<p>Overall weight: {dimension['weight']:g} "
+            f"({dimension['weight_percentage']:.2f}% of the overall score)</p>"
+        )
     indicator_rows = "".join(
         "<tr>"
         f"<td>{escape(str(item['name']))}</td>"
@@ -62,6 +68,7 @@ def _dimension_html(dimension):
     return (
         "<section>"
         f"<h2>{escape(str(dimension['dimension']))}: {score}</h2>"
+        f"{weight_note}"
         "<h3>Indicators</h3>"
         f"{indicators}"
         "<h3>Problems</h3>"
@@ -81,6 +88,10 @@ def _render_html(report):
     }
     result = report["result"]
     dimensions = "".join(_dimension_html(item) for item in result["dimensions"])
+    weighting = ""
+    if "weight_source" in result:
+        source = "Custom weights" if result["weight_source"] == "custom" else "Study-based defaults"
+        weighting = f"<p>Weighting: {source}. Only applicable dimensions contribute.</p>"
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -102,6 +113,7 @@ section {{ border-top: 1px solid #ccc; margin-top: 2rem; padding-top: 1rem; }}
 <body>
 <h1>Data Readiness Report</h1>
 <h2>Overall score: {result['score']} — {escape(str(result['classification']))}</h2>
+{weighting}
 <section><h2>Dataset</h2>{_table(report['dataset'])}</section>
 <section><h2>Profile summary</h2>{_table(report['profile']['dataset'])}</section>
 <section><h2>Usage context</h2>{_table(context_summary)}</section>

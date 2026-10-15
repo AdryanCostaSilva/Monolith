@@ -3,11 +3,14 @@ from tkinter import BooleanVar, filedialog
 
 import customtkinter as ctk
 
+from src.aggregation import aggregate
+from src.config import DIMENSION_WEIGHTS
 from src.context import DOCUMENTATION_ITEMS, PROVENANCE_ITEMS, UsageContext
 from src.engine import evaluate_dataset
 from src.loading import load
 from src.profiling import profile
 from src.reporting import export_html, export_json, generate_report
+from src.ui.dimension_card import MUTED_TEXT, DimensionCard
 
 
 LOAD_TAB = "1. Load"
@@ -15,6 +18,10 @@ CONTEXT_TAB = "2. Context"
 EVALUATE_TAB = "3. Evaluate"
 RESULTS_TAB = "4. Results"
 NO_TARGET = "No target"
+WEIGHT_HELP = (
+    "Defaults informed by our studies. Adjust relative importance; "
+    "0 leaves a dimension out of the overall score."
+)
 
 
 class DataReadinessApp(ctk.CTk):
@@ -33,6 +40,10 @@ class DataReadinessApp(ctk.CTk):
         self.important_vars = {}
         self.documentation_vars = {}
         self.provenance_vars = {}
+        self.dimension_weights = None
+        self.weight_task_type = None
+        self.weights_expanded = False
+        self.dimension_cards = {}
 
         self._build_interface()
 
@@ -235,10 +246,15 @@ class DataReadinessApp(ctk.CTk):
         self.evaluate_button.grid(row=2, column=0, padx=20, pady=(10, 45))
 
     def _build_results_tab(self):
-        tab = self.tabs.tab(RESULTS_TAB)
+        outer = self.tabs.tab(RESULTS_TAB)
+        outer.grid_columnconfigure(0, weight=1)
+        outer.grid_rowconfigure(0, weight=1)
+        self.results_scroll = ctk.CTkScrollableFrame(
+            outer, fg_color="transparent", corner_radius=0
+        )
+        self.results_scroll.grid(row=0, column=0, sticky="nsew")
+        tab = self.results_scroll
         tab.grid_columnconfigure(0, weight=1)
-        tab.grid_rowconfigure(1, weight=1)
-        tab.grid_rowconfigure(2, weight=1)
 
         summary = ctk.CTkFrame(tab)
         summary.grid(row=0, column=0, sticky="ew", padx=14, pady=(14, 8))
@@ -258,17 +274,68 @@ class DataReadinessApp(ctk.CTk):
         )
         self.export_button.pack(side="right", padx=20, pady=14)
 
-        self.dimension_frame = ctk.CTkScrollableFrame(
-            tab, label_text="Dimension scores", height=190
+        weights_header = ctk.CTkFrame(tab, fg_color="transparent")
+        weights_header.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 2))
+        weights_header.grid_columnconfigure(1, weight=1)
+        self.weight_toggle = ctk.CTkButton(
+            weights_header,
+            text="▸  Adjust dimension weights",
+            command=self._toggle_weights,
+            fg_color="transparent",
+            hover_color=("#E5E9ED", "#34383E"),
+            text_color=MUTED_TEXT,
+            anchor="w",
+            width=204,
+            height=32,
+            state="disabled",
         )
+        self.weight_toggle.grid(row=0, column=0, sticky="w")
+        self.weight_source_label = ctk.CTkLabel(
+            weights_header,
+            text="Available after evaluation",
+            text_color=MUTED_TEXT,
+            font=ctk.CTkFont(size=12),
+            anchor="w",
+        )
+        self.weight_source_label.grid(row=0, column=1, sticky="w", padx=12)
+        self.reset_weights_button = ctk.CTkButton(
+            weights_header,
+            text="Reset to defaults",
+            command=self._reset_weights,
+            fg_color="transparent",
+            hover_color=("#E5E9ED", "#34383E"),
+            text_color=("#51697D", "#B1C1CE"),
+            border_width=1,
+            border_color=("#D3DAE1", "#494F57"),
+            width=126,
+            height=30,
+            state="disabled",
+        )
+        self.reset_weights_button.grid(row=0, column=2, sticky="e")
+        self.reset_weights_button.grid_remove()
+        self.weight_help = ctk.CTkLabel(
+            weights_header,
+            text=WEIGHT_HELP,
+            text_color=MUTED_TEXT,
+            font=ctk.CTkFont(size=12),
+            anchor="w",
+            justify="left",
+            wraplength=740,
+        )
+        self.weight_help.grid(
+            row=1, column=0, columnspan=3, sticky="ew", padx=4, pady=(0, 6)
+        )
+        self.weight_help.grid_remove()
+
+        self.dimension_frame = ctk.CTkFrame(tab, fg_color="transparent")
         self.dimension_frame.grid(
-            row=1, column=0, sticky="nsew", padx=14, pady=8
+            row=2, column=0, sticky="ew", padx=8, pady=8
         )
         for column in range(3):
-            self.dimension_frame.grid_columnconfigure(column, weight=1)
+            self.dimension_frame.grid_columnconfigure(column, weight=1, uniform="dimension")
 
         details = ctk.CTkFrame(tab, fg_color="transparent")
-        details.grid(row=2, column=0, sticky="nsew", padx=8, pady=8)
+        details.grid(row=3, column=0, sticky="nsew", padx=8, pady=8)
         details.grid_columnconfigure(0, weight=1)
         details.grid_columnconfigure(1, weight=1)
         details.grid_rowconfigure(1, weight=1)
@@ -278,9 +345,9 @@ class DataReadinessApp(ctk.CTk):
         ctk.CTkLabel(
             details, text="Recommendations", font=ctk.CTkFont(weight="bold")
         ).grid(row=0, column=1, sticky="w", padx=6)
-        self.problems_textbox = ctk.CTkTextbox(details)
+        self.problems_textbox = ctk.CTkTextbox(details, height=140, wrap="word")
         self.problems_textbox.grid(row=1, column=0, sticky="nsew", padx=6, pady=4)
-        self.recommendations_textbox = ctk.CTkTextbox(details)
+        self.recommendations_textbox = ctk.CTkTextbox(details, height=140, wrap="word")
         self.recommendations_textbox.grid(
             row=1, column=1, sticky="nsew", padx=6, pady=4
         )
@@ -288,7 +355,7 @@ class DataReadinessApp(ctk.CTk):
         self._set_text(self.recommendations_textbox, "No evaluation yet.")
 
         self.export_status = ctk.CTkLabel(tab, text="", text_color="gray")
-        self.export_status.grid(row=3, column=0, sticky="w", padx=14, pady=(0, 8))
+        self.export_status.grid(row=4, column=0, sticky="w", padx=14, pady=(0, 8))
 
     def _load_dataset(self):
         selected = filedialog.askopenfilename(
@@ -313,6 +380,8 @@ class DataReadinessApp(ctk.CTk):
         self.dataset_profile = dataset_profile
         self.context = None
         self.result = None
+        self.dimension_weights = None
+        self.weight_task_type = None
         self.load_status.configure(
             text=f"Dataset loaded: {Path(selected).name}", text_color="#67d391"
         )
@@ -381,7 +450,7 @@ class DataReadinessApp(ctk.CTk):
 
         target_name = self.target_menu.get()
         target = None if target_name == NO_TARGET else self.column_lookup[target_name]
-        self.context = UsageContext(
+        context = UsageContext(
             project_goal=goal,
             task_type=self.task_menu.get(),
             target_column=target,
@@ -398,6 +467,14 @@ class DataReadinessApp(ctk.CTk):
                 for name, variable in self.provenance_vars.items()
             },
         )
+        if context != self.context:
+            self._reset_results()
+        if context.task_type != self.weight_task_type or (
+            self.context is not None and context.target_column != self.context.target_column
+        ):
+            self.dimension_weights = None
+            self.weight_task_type = context.task_type
+        self.context = context
         self.context_status.configure(text="Context saved.", text_color="#67d391")
         self.evaluation_status.configure(
             text=f"{self.info['file']} is ready to evaluate.", text_color="gray"
@@ -413,7 +490,12 @@ class DataReadinessApp(ctk.CTk):
         self.evaluation_status.configure(text="Evaluating...", text_color="gray")
         self.update_idletasks()
         try:
-            self.result = evaluate_dataset(self.df, self.context, self.dataset_profile)
+            self.result = evaluate_dataset(
+                self.df,
+                self.context,
+                self.dataset_profile,
+                dimension_weights=self.dimension_weights,
+            )
         except Exception as error:
             self.evaluation_status.configure(
                 text=f"Evaluation failed: {error}", text_color="#ff6b6b"
@@ -425,6 +507,46 @@ class DataReadinessApp(ctk.CTk):
         self.tabs.set(RESULTS_TAB)
 
     def _show_results(self):
+        color = self._refresh_score_summary()
+        self.weight_toggle.configure(state="normal")
+        for widget in self.dimension_frame.winfo_children():
+            widget.destroy()
+        self.dimension_cards = {}
+        problems = []
+        recommendations = []
+        defaults = DIMENSION_WEIGHTS[self.context.task_type]
+        for index, dimension in enumerate(self.result["dimensions"]):
+            name = dimension["dimension"]
+            card = DimensionCard(
+                self.dimension_frame,
+                dimension,
+                defaults.get(name),
+                color,
+                lambda value, name=name: self._change_dimension_weight(name, value),
+            )
+            card.grid(
+                row=index // 3, column=index % 3, sticky="nsew", padx=6, pady=6
+            )
+            card.set_controls_visible(self.weights_expanded)
+            self.dimension_cards[name] = card
+            problems.extend(
+                f"[{name}] {item}" for item in dimension["problems"]
+            )
+            recommendations.extend(
+                f"[{name}] {item}" for item in dimension["recommendations"]
+            )
+
+        self._set_text(
+            self.problems_textbox,
+            "\n\n".join(problems) if problems else "No problems found.",
+        )
+        self._set_text(
+            self.recommendations_textbox,
+            "\n\n".join(recommendations) if recommendations else "No recommendations.",
+        )
+        self.results_scroll._parent_canvas.yview_moveto(0)
+
+    def _refresh_score_summary(self):
         colors = {
             "Not ready": "#dc5a5a",
             "Requires preparation": "#e0a93b",
@@ -438,50 +560,69 @@ class DataReadinessApp(ctk.CTk):
         )
         self.export_button.configure(state="normal")
         self.export_status.configure(text="")
-
-        for widget in self.dimension_frame.winfo_children():
-            widget.destroy()
-        problems = []
-        recommendations = []
-        for index, dimension in enumerate(self.result["dimensions"]):
-            card = ctk.CTkFrame(self.dimension_frame)
-            card.grid(
-                row=index // 3,
-                column=index % 3,
-                sticky="ew",
-                padx=6,
-                pady=6,
-            )
-            ctk.CTkLabel(card, text=dimension["dimension"], text_color="gray").pack(
-                pady=(8, 0)
-            )
-            score = dimension["score"]
-            text = "N/A" if score is None else f"{score:.2f}"
-            ctk.CTkLabel(
-                card, text=text, font=ctk.CTkFont(size=20, weight="bold")
-            ).pack(pady=2)
-            progress = ctk.CTkProgressBar(card, progress_color=color)
-            progress.pack(fill="x", padx=12, pady=(2, 10))
-            progress.set(0 if score is None else score / 100)
-            problems.extend(
-                f"[{dimension['dimension']}] {item}"
-                for item in dimension["problems"]
-            )
-            recommendations.extend(
-                f"[{dimension['dimension']}] {item}"
-                for item in dimension["recommendations"]
-            )
-
-        self._set_text(
-            self.problems_textbox,
-            "\n\n".join(problems) if problems else "No problems found.",
+        custom = self.result["weight_source"] == "custom"
+        source = "Custom weights" if custom else "Study defaults"
+        self.weight_source_label.configure(
+            text=f"{source} · {self.context.task_type.capitalize()}"
         )
-        self._set_text(
-            self.recommendations_textbox,
-            "\n\n".join(recommendations) if recommendations else "No recommendations.",
+        self.reset_weights_button.configure(state="normal" if custom else "disabled")
+        return color
+
+    def _toggle_weights(self):
+        self._set_weights_expanded(not self.weights_expanded)
+
+    def _set_weights_expanded(self, expanded):
+        self.weights_expanded = expanded
+        self.weight_toggle.configure(
+            text=f"{'▾' if expanded else '▸'}  Adjust dimension weights"
         )
+        if expanded:
+            self.weight_help.grid()
+            self.reset_weights_button.grid()
+        else:
+            self.weight_help.grid_remove()
+            self.reset_weights_button.grid_remove()
+        for card in self.dimension_cards.values():
+            card.set_controls_visible(expanded)
+
+    def _change_dimension_weight(self, name, value):
+        weights = dict(
+            DIMENSION_WEIGHTS[self.context.task_type]
+            if self.dimension_weights is None else self.dimension_weights
+        )
+        weights[name] = round(value, 1)
+        self._apply_dimension_weights(weights)
+
+    def _reset_weights(self):
+        self._apply_dimension_weights(None, sync_sliders=True)
+
+    def _apply_dimension_weights(self, weights, *, sync_sliders=False):
+        try:
+            evaluation = aggregate(self.result["dimensions"], self.context.task_type, weights)
+        except ValueError as error:
+            self.weight_help.configure(text=str(error), text_color=("#996723", "#DBB677"))
+            for dimension in self.result["dimensions"]:
+                self.dimension_cards[dimension["dimension"]].update_weight(
+                    dimension, sync_slider=True
+                )
+            return
+
+        self.result = evaluation
+        self.dimension_weights = weights if evaluation["weight_source"] == "custom" else None
+        self.weight_help.configure(text=WEIGHT_HELP, text_color=MUTED_TEXT)
+        color = self._refresh_score_summary()
+        for dimension in evaluation["dimensions"]:
+            card = self.dimension_cards[dimension["dimension"]]
+            card.progress.configure(progress_color=color)
+            card.update_weight(dimension, sync_slider=sync_sliders)
 
     def _reset_results(self):
+        self.result = None
+        self._set_weights_expanded(False)
+        self.weight_toggle.configure(state="disabled")
+        self.weight_source_label.configure(text="Available after evaluation")
+        self.weight_help.configure(text=WEIGHT_HELP, text_color=MUTED_TEXT)
+        self.reset_weights_button.configure(state="disabled")
         self.score_label.configure(text="-", text_color=("black", "white"))
         self.classification_label.configure(
             text="Run an evaluation to see results.", text_color="gray"
@@ -490,6 +631,7 @@ class DataReadinessApp(ctk.CTk):
         self.export_status.configure(text="")
         for widget in self.dimension_frame.winfo_children():
             widget.destroy()
+        self.dimension_cards = {}
         self._set_text(self.problems_textbox, "No evaluation yet.")
         self._set_text(self.recommendations_textbox, "No evaluation yet.")
 

@@ -59,7 +59,7 @@ def main():
         evaluate_provenance(context),
         evaluate_quality(df),
     ]
-    result = aggregate(dimensions)
+    result = aggregate(dimensions, context.task_type)
     report = generate_report(info, dataset_profile, context, result)
     json_path = export_json(report, "evidence/demo_report.json")
     html_path = export_html(report, "evidence/demo_report.html")

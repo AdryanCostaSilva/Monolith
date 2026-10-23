@@ -19,9 +19,12 @@ desktop.ini
 
 # Test dataset
 iris_dataset.csv
-evidenve/
+evidence/
 *.csv
 *.parquet
 *.xlsx
 *.html
 *.json
+
+# Docs and evidence
+docs/

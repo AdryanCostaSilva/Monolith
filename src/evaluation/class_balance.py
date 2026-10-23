@@ -39,4 +39,13 @@ def evaluate(df, context):
         )
 
     indicators = [indicator("Minority-to-majority class ratio", ratio)]
-    return result("Class Balance", indicators, problems, recommendations)
+    evaluation = result("Class Balance", indicators, problems, recommendations)
+    # Reuse exact counts already calculated here, including numeric target classes.
+    # Keep exports bounded even when a target has many distinct values.
+    top = counts[counts > 0].nlargest(8)
+    evaluation["class_distribution"] = {
+        "classes": [{"label": str(value), "count": int(count)} for value, count in top.items()],
+        "other_count": int(counts.sum() - top.sum()),
+        "missing_count": int(len(df) - counts.sum()),
+    }
+    return evaluation

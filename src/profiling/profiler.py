@@ -5,6 +5,7 @@ import pandas as pd
 from pandas.api.types import is_bool_dtype, is_numeric_dtype, is_object_dtype, is_string_dtype
 
 from src.profiling.values import factorize_column, is_nested, release_pages
+from src.profiling.visualizations import visualization_profile
 
 
 def _percentage(part, total):
@@ -103,6 +104,10 @@ def profile(df, *, progress=None):
             group_count = len(groups)
         release_pages(df)
 
+    if progress:
+        progress("Preparing dataset plots")
+    visualizations = visualization_profile(df)
+    release_pages(df)
     return {
         "dataset": {
             "rows": rows,
@@ -111,4 +116,5 @@ def profile(df, *, progress=None):
             "duplicate_rows": rows - group_count if rows else 0,
         },
         "columns": columns,
+        "visualizations": visualizations,
     }

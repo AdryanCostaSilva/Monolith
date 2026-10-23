@@ -28,3 +28,6 @@ evidence/
 
 # Docs and evidence
 docs/
+
+# Test suite (local only, for now)
+tests/

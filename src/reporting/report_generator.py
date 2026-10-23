@@ -4,6 +4,7 @@ from dataclasses import asdict, is_dataclass
 from html import escape
 from pathlib import Path
 
+from src.config import DIMENSION_HELP
 from src.reporting.charts import charts_html, score_gauge
 from src.reporting.dataset_plots import dataset_plots_html
 
@@ -21,6 +22,7 @@ def generate_report(info, profile, context, result):
         "profile": deepcopy(profile),
         "context": context,
         "result": deepcopy(result),
+        "dimension_help": dict(DIMENSION_HELP),
     }
 
 
@@ -54,6 +56,8 @@ def _dimension_html(dimension):
             f"<p>Overall weight: {dimension['weight']:g} "
             f"({dimension['weight_percentage']:.2f}% of the overall score)</p>"
         )
+    help_text = DIMENSION_HELP.get(dimension["dimension"])
+    help_note = f"<p>What this measures: {escape(help_text)}</p>" if help_text else ""
     indicator_rows = "".join(
         "<tr>"
         f"<td>{escape(str(item['name']))}</td>"
@@ -71,6 +75,7 @@ def _dimension_html(dimension):
     return (
         "<section>"
         f"<h2>{escape(str(dimension['dimension']))}: {escape(str(score))}</h2>"
+        f"{help_note}"
         f"{weight_note}"
         "<h3>Indicators</h3>"
         f"{indicators}"

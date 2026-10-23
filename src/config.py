@@ -41,3 +41,40 @@ SCORE_BANDS = (
     (75, "Almost ready"),
     (90, "Ready"),
 )
+
+# User-facing explanation of each evaluation dimension, shown in the UI
+# (results tab, dimension card tooltips and context captions) and copied into
+# exported reports. One place to change (RNF04). Keys must match the
+# "dimension" field produced by each evaluator in src/evaluation/.
+DIMENSION_HELP = {
+    "Completeness": (
+        "Measures whether every cell that matters is filled in: the overall "
+        "missing percentage, missing values in the columns you marked as "
+        "important, and rows that still contain missing values."
+    ),
+    "Consistency": (
+        "Measures whether the data sticks to one format: numbers stored as "
+        "text, the same category written in different ways, columns with "
+        "mixed types, and duplicate rows."
+    ),
+    "Class Balance": (
+        "Measures how unevenly the classes of the target column are "
+        "distributed; very imbalanced classes make classification harder. "
+        "This dimension only applies to classification tasks."
+    ),
+    "Documentation": (
+        "Measures whether the dataset is described for someone who did not "
+        "build it: variable descriptions, target definition, collection "
+        "method and period, units and categories, and known limitations."
+    ),
+    "Provenance": (
+        "Measures whether the origin and generation process of the data are "
+        "recorded: source, collector, generation period, applied "
+        "transformations, and dataset version."
+    ),
+    "Data Quality": (
+        "Measures value-level noise that plausibly harms training: extreme "
+        "outliers detected per column by the IQR rule, and constant columns "
+        "that carry no information."
+    ),
+}

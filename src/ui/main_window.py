@@ -6,7 +6,7 @@ from tkinter import BooleanVar, filedialog, ttk
 import customtkinter as ctk
 
 from src.aggregation import aggregate
-from src.config import DIMENSION_WEIGHTS
+from src.config import DIMENSION_HELP, DIMENSION_WEIGHTS
 from src.context import DOCUMENTATION_ITEMS, PROVENANCE_ITEMS, UsageContext
 from src.engine import evaluate_dataset
 from src.loading import load
@@ -167,20 +167,40 @@ class DataReadinessApp(ctk.CTk):
         checklists.grid(row=2, column=0, sticky="nsew", padx=8, pady=8)
         for column in range(3):
             checklists.grid_columnconfigure(column, weight=1)
-        checklists.grid_rowconfigure(0, weight=1)
+        checklists.grid_rowconfigure(1, weight=1)
+
+        captions = {
+            1: DIMENSION_HELP["Documentation"],
+            2: DIMENSION_HELP["Provenance"],
+        }
+        for column, text in captions.items():
+            caption = ctk.CTkLabel(
+                checklists,
+                text=text,
+                text_color=MUTED_TEXT,
+                font=ctk.CTkFont(size=11),
+                justify="left",
+                anchor="w",
+                wraplength=300,
+            )
+            caption.grid(row=0, column=column, sticky="ew", padx=6, pady=(0, 6))
+            if column == 1:
+                self.documentation_caption = caption
+            else:
+                self.provenance_caption = caption
 
         self.important_frame = ctk.CTkScrollableFrame(
             checklists, label_text="Important columns", height=220
         )
-        self.important_frame.grid(row=0, column=0, sticky="nsew", padx=6)
+        self.important_frame.grid(row=1, column=0, sticky="nsew", padx=6)
         self.documentation_frame = ctk.CTkScrollableFrame(
             checklists, label_text="Documentation", height=220
         )
-        self.documentation_frame.grid(row=0, column=1, sticky="nsew", padx=6)
+        self.documentation_frame.grid(row=1, column=1, sticky="nsew", padx=6)
         self.provenance_frame = ctk.CTkScrollableFrame(
             checklists, label_text="Provenance", height=220
         )
-        self.provenance_frame.grid(row=0, column=2, sticky="nsew", padx=6)
+        self.provenance_frame.grid(row=1, column=2, sticky="nsew", padx=6)
         self._build_checklist(
             self.documentation_frame, DOCUMENTATION_ITEMS, self.documentation_vars
         )
@@ -283,30 +303,32 @@ class DataReadinessApp(ctk.CTk):
         )
         self.export_button.pack(side="right", padx=20, pady=14)
 
-        weights_header = ctk.CTkFrame(tab, fg_color="transparent")
-        weights_header.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 2))
+        weights_header = ctk.CTkFrame(tab, fg_color=("#F7F9FC", "#2D3237"))
+        weights_header.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 10))
         weights_header.grid_columnconfigure(1, weight=1)
-        self.weight_toggle = ctk.CTkButton(
+        self.weights_title = ctk.CTkLabel(
             weights_header,
-            text="▸  Adjust dimension weights",
-            command=self._toggle_weights,
-            fg_color="transparent",
-            hover_color=("#E5E9ED", "#34383E"),
-            text_color=MUTED_TEXT,
-            anchor="w",
-            width=204,
-            height=32,
-            state="disabled",
+            text="Dimension weights",
+            font=ctk.CTkFont(size=13, weight="bold"),
         )
-        self.weight_toggle.grid(row=0, column=0, sticky="w")
+        self.weights_title.grid(row=0, column=0, sticky="w", padx=(16, 0), pady=10)
         self.weight_source_label = ctk.CTkLabel(
             weights_header,
-            text="Available after evaluation",
+            text="Choose how much each dimension counts in the overall score.",
             text_color=MUTED_TEXT,
             font=ctk.CTkFont(size=12),
             anchor="w",
         )
         self.weight_source_label.grid(row=0, column=1, sticky="w", padx=12)
+        self.weight_toggle = ctk.CTkButton(
+            weights_header,
+            text="Adjust weights",
+            command=self._toggle_weights,
+            width=130,
+            height=32,
+            state="disabled",
+        )
+        self.weight_toggle.grid(row=0, column=2, sticky="e", padx=(0, 8))
         self.reset_weights_button = ctk.CTkButton(
             weights_header,
             text="Reset to defaults",
@@ -320,7 +342,7 @@ class DataReadinessApp(ctk.CTk):
             height=30,
             state="disabled",
         )
-        self.reset_weights_button.grid(row=0, column=2, sticky="e")
+        self.reset_weights_button.grid(row=0, column=3, sticky="e", padx=(0, 12))
         self.reset_weights_button.grid_remove()
         self.weight_help = ctk.CTkLabel(
             weights_header,
@@ -332,7 +354,7 @@ class DataReadinessApp(ctk.CTk):
             wraplength=740,
         )
         self.weight_help.grid(
-            row=1, column=0, columnspan=3, sticky="ew", padx=4, pady=(0, 6)
+            row=1, column=0, columnspan=4, sticky="ew", padx=16, pady=(0, 10)
         )
         self.weight_help.grid_remove()
 
@@ -601,6 +623,7 @@ class DataReadinessApp(ctk.CTk):
                 defaults.get(name),
                 color,
                 lambda value, name=name: self._change_dimension_weight(name, value),
+                help_text=DIMENSION_HELP.get(name),
             )
             card.grid(
                 row=index // 3, column=index % 3, sticky="nsew", padx=6, pady=6
@@ -652,7 +675,7 @@ class DataReadinessApp(ctk.CTk):
     def _set_weights_expanded(self, expanded):
         self.weights_expanded = expanded
         self.weight_toggle.configure(
-            text=f"{'▾' if expanded else '▸'}  Adjust dimension weights"
+            text="Collapse weights" if expanded else "Adjust weights"
         )
         if expanded:
             self.weight_help.grid()

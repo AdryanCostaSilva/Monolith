@@ -1,3 +1,4 @@
+import time
 import tkinter
 import unittest
 
@@ -6,6 +7,12 @@ import pandas as pd
 from src.config import DIMENSION_WEIGHTS
 from src.profiling import profile
 from src.ui.main_window import NO_TARGET, DataReadinessApp
+
+
+def wait_for_evaluation(app, timeout=10):
+    deadline = time.time() + timeout
+    while app._busy and time.time() < deadline:
+        app.update()
 
 
 class WeightControlTests(unittest.TestCase):
@@ -35,7 +42,7 @@ class WeightControlTests(unittest.TestCase):
         app.task_menu.set("classification")
         app.target_menu.set("target")
         app._evaluate()
-        app.update_idletasks()
+        wait_for_evaluation(app)
         self.assertIsNotNone(app.result)
 
     def test_weights_are_collapsed_until_requested(self):
@@ -77,6 +84,7 @@ class WeightControlTests(unittest.TestCase):
     def test_regression_has_no_class_balance_slider(self):
         self.app.task_menu.set("regression")
         self.app._evaluate()
+        wait_for_evaluation(self.app)
         self.app.weight_toggle.invoke()
 
         self.assertIsNone(self.app.dimension_cards["Class Balance"].slider)
@@ -103,6 +111,7 @@ class WeightControlTests(unittest.TestCase):
 
         app.task_menu.set("regression")
         app._evaluate()
+        wait_for_evaluation(app)
 
         self.assertIsNone(app.dimension_weights)
         self.assertEqual(app.result["weight_source"], "study_defaults")
@@ -125,6 +134,7 @@ class WeightControlTests(unittest.TestCase):
 
         app.target_menu.set(NO_TARGET)
         app._evaluate()
+        wait_for_evaluation(app)
 
         self.assertIsNotNone(app.result)
         self.assertEqual(app.result["weight_source"], "study_defaults")

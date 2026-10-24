@@ -17,8 +17,8 @@ def evaluate_dataset(df, context, dataset_profile=None, *, dimension_weights=Non
         evaluate_completeness(df, context),
         evaluate_consistency(df, dataset_profile),
         evaluate_class_balance(df, context),
-        evaluate_documentation(context),
-        evaluate_provenance(context),
+        evaluate_documentation(context, df),
+        evaluate_provenance(context, df),
         evaluate_quality(df, dataset_profile),
     ]
     release_pages(df)

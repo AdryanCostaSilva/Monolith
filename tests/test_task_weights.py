@@ -7,6 +7,7 @@ from src.aggregation import aggregate
 from src.config import DIMENSION_WEIGHTS
 from src.context import DOCUMENTATION_ITEMS, PROVENANCE_ITEMS, UsageContext
 from src.engine import evaluate_dataset
+from src.metadata import METADATA_ATTR
 from src.evaluation import evaluate_class_balance
 from src.evaluation.base import indicator, result
 
@@ -82,6 +83,23 @@ class TaskWeightTests(unittest.TestCase):
             documentation=dict.fromkeys(DOCUMENTATION_ITEMS, True),
             provenance=dict.fromkeys(PROVENANCE_ITEMS, True),
         )
+        df.attrs[METADATA_ATTR] = {"source": "sample.csv.metadata.json", "metadata": {
+            "columns": {
+                "feature": {"description": "Input", "unit": "dimensionless"},
+                "target": {"description": "Output", "unit": "dimensionless"},
+            },
+            "documentation": {
+                "target_definition": {"column": "target", "description": "Output"},
+                "data_collection": "Measured in a controlled experiment",
+                "collection_period": {"start": "2026-01-01", "end": "2026-01-02"},
+                "known_limitations": ["Small sample"],
+            },
+            "provenance": {
+                "origin": "Experiment 1", "collector": "Research team",
+                "generation_period": {"start": "2026-01-01", "end": "2026-01-02"},
+                "transformations": ["Raw measurements"], "version": "1",
+            },
+        }}
 
         evaluation = evaluate_dataset(df, context)
 

@@ -73,7 +73,7 @@ class ReportChartTests(unittest.TestCase):
         self.assertEqual(distribution["missing_count"], 3)
         self.assertEqual(sum(item["count"] for item in distribution["classes"]) +
                          distribution["other_count"], 31)
-        self.report["result"] = aggregate([balance])
+        self.report["result"] = aggregate([balance], self.context.task_type)
         html = _render_html(self.report)
         self.assertIn("Remaining classes (combined)", html)
         self.assertIn("31 non-missing labels", html)
@@ -96,7 +96,7 @@ class ReportChartTests(unittest.TestCase):
                    pd.DataFrame({"target": pd.Series(dtype=float)})):
             balance = evaluate_balance(df, self.context)
             self.report["profile"] = profile(df)
-            self.report["result"] = aggregate([balance])
+            self.report["result"] = aggregate([balance], self.context.task_type)
             html = _render_html(self.report)
             self.assertIn("No non-missing target labels", html)
             self.assertNotRegex(html.lower(), r"\bnan\b")

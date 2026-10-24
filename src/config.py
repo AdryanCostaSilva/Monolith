@@ -65,12 +65,14 @@ DIMENSION_HELP = {
     "Documentation": (
         "Measures whether the dataset is described for someone who did not "
         "build it: variable descriptions, target definition, collection "
-        "method and period, units and categories, and known limitations."
+        "method and period, units and categories, and known limitations. "
+        "Checked items receive full credit; unchecked items use uploaded metadata coverage."
     ),
     "Provenance": (
         "Measures whether the origin and generation process of the data are "
         "recorded: source, collector, generation period, applied "
-        "transformations, and dataset version."
+        "transformations, and dataset version. Checked items receive full credit; "
+        "unchecked items use uploaded metadata. Claims are not independently verified."
     ),
     "Data Quality": (
         "Measures value-level noise that plausibly harms training: extreme "

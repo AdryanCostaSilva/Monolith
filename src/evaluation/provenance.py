@@ -1,4 +1,4 @@
-from src.evaluation.base import add_problem, indicator, result
+from src.evaluation.metadata import evaluate_metadata
 
 
 LABELS = {
@@ -10,20 +10,5 @@ LABELS = {
 }
 
 
-def evaluate(context):
-    indicators = []
-    problems = []
-    recommendations = []
-
-    for item, answer in context.provenance.items():
-        label = LABELS[item]
-        indicators.append(indicator(label, 100 if answer else 0))
-        if not answer:
-            add_problem(
-                problems,
-                recommendations,
-                f"Missing provenance: {label.lower()}",
-                f"Record the {label.lower()}",
-            )
-
-    return result("Provenance", indicators, problems, recommendations)
+def evaluate(context, df=None):
+    return evaluate_metadata(context, df, "provenance", LABELS)

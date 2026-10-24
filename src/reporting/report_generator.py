@@ -63,20 +63,37 @@ def _dimension_html(dimension):
         f"<td>{escape(str(item['name']))}</td>"
         f"<td>{escape(str(item['value']))}</td>"
         f"<td>{escape(str(item['weight']))}</td>"
+        f"<td>{escape(str(item.get('status', '')))}</td>"
+        f"<td>{escape(str(item.get('source') or ''))}</td>"
+        f"<td>{escape(str(item.get('field', '')))}</td>"
+        f"<td>{escape(json.dumps(item['evidence'], ensure_ascii=False)) if 'evidence' in item else ''}</td>"
         "</tr>"
         for item in dimension["indicators"]
     )
     indicators = (
-        "<table><thead><tr><th>Indicator</th><th>Value</th><th>Weight</th></tr></thead>"
+        "<table><thead><tr><th>Indicator</th><th>Value</th><th>Weight</th>"
+        "<th>Status</th><th>Source</th><th>Field</th><th>Evidence</th></tr></thead>"
         f"<tbody>{indicator_rows}</tbody></table>"
         if indicator_rows
         else "<p>Not applicable</p>"
     )
+    assessment_note = ""
+    if "assessment" in dimension:
+        assessment = dimension["assessment"]
+        excluded = dimension.get("excluded_indicators", [])
+        assessment_note = (
+            f"<p>{escape(assessment['note'])}</p>"
+            f"<p>Evidence source: {escape(str(assessment['source'] or 'No metadata file'))}</p>"
+            f"<p>Dataset SHA-256: {escape(str(assessment['dataset_sha256'] or 'Unavailable'))}</p>"
+            + _list(assessment["warnings"])
+            + ("<p>Excluded from score: " + escape(", ".join(item["name"] for item in excluded)) + "</p>" if excluded else "")
+        )
     return (
         "<section>"
         f"<h2>{escape(str(dimension['dimension']))}: {escape(str(score))}</h2>"
         f"{help_note}"
         f"{weight_note}"
+        f"{assessment_note}"
         "<h3>Indicators</h3>"
         f"{indicators}"
         "<h3>Problems</h3>"
@@ -191,8 +208,8 @@ section {{ border-top: 1px solid #d9e1ec; margin-top: 2rem; padding-top: 1rem; }
 <section><h2>Profile summary</h2>{_table(report['profile']['dataset'])}</section>
 {dataset_plots_html(report)}
 <section><h2>Usage context</h2>{_table(context_summary)}</section>
-<section><h2>Documentation checklist</h2>{_table(context['documentation'])}</section>
-<section><h2>Provenance checklist</h2>{_table(context['provenance'])}</section>
+<section><h2>Documentation checklist (self-reported)</h2><p>Checked items receive full credit; unchecked items use uploaded metadata.</p>{_table(context['documentation'])}</section>
+<section><h2>Provenance checklist (self-reported)</h2><p>Checked items receive full credit; unchecked items use uploaded metadata.</p>{_table(context['provenance'])}</section>
 {dimensions}
 </body>
 </html>

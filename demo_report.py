@@ -2,16 +2,8 @@ import sys
 
 import pandas as pd
 
-from src.aggregation import aggregate
 from src.context import UsageContext
-from src.evaluation import (
-    evaluate_class_balance,
-    evaluate_completeness,
-    evaluate_consistency,
-    evaluate_documentation,
-    evaluate_provenance,
-    evaluate_quality,
-)
+from src.engine import evaluate_dataset
 from src.loading import load
 from src.profiling import profile
 from src.reporting import export_html, export_json, generate_report
@@ -51,15 +43,7 @@ def main():
         df, info, context = sample_data()
 
     dataset_profile = profile(df)
-    dimensions = [
-        evaluate_completeness(df, context),
-        evaluate_consistency(df, dataset_profile),
-        evaluate_class_balance(df, context),
-        evaluate_documentation(context),
-        evaluate_provenance(context),
-        evaluate_quality(df),
-    ]
-    result = aggregate(dimensions, context.task_type)
+    result = evaluate_dataset(df, context, dataset_profile)
     report = generate_report(info, dataset_profile, context, result)
     json_path = export_json(report, "evidence/demo_report.json")
     html_path = export_html(report, "evidence/demo_report.html")

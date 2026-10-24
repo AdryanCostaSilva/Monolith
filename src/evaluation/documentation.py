@@ -1,4 +1,4 @@
-from src.evaluation.base import add_problem, indicator, result
+from src.evaluation.metadata import evaluate_metadata
 
 
 LABELS = {
@@ -11,20 +11,5 @@ LABELS = {
 }
 
 
-def evaluate(context):
-    indicators = []
-    problems = []
-    recommendations = []
-
-    for item, answer in context.documentation.items():
-        label = LABELS[item]
-        indicators.append(indicator(label, 100 if answer else 0))
-        if not answer:
-            add_problem(
-                problems,
-                recommendations,
-                f"Missing documentation: {label.lower()}",
-                f"Document the {label.lower()}",
-            )
-
-    return result("Documentation", indicators, problems, recommendations)
+def evaluate(context, df=None):
+    return evaluate_metadata(context, df, "documentation", LABELS)

@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.metadata import METADATA_ATTR, collect_metadata
+
 
 class LoadError(Exception):
     """Error while loading the dataset."""
@@ -109,8 +111,8 @@ def _validate(df):
         raise LoadError("Only 1 column found. The delimiter was probably not detected correctly.")
 
 
-def load(path, *, progress=None):
-    """Read CSV, XLSX or Parquet and return (df, info) without changing the data."""
+def load(path, *, progress=None, metadata_path=None):
+    """Read a dataset and optional explicitly selected metadata; return (df, info)."""
     path = Path(path)
 
     if not path.exists():
@@ -143,6 +145,11 @@ def load(path, *, progress=None):
 
     _validate(df)
 
+    if progress:
+        progress("Collecting metadata and dataset fingerprint...")
+    evidence = collect_metadata(path, metadata_path)
+    df.attrs[METADATA_ATTR] = evidence
+
     info = {
         "file": path.name,
         "format": extension.lstrip("."),
@@ -150,5 +157,8 @@ def load(path, *, progress=None):
         "delimiter": sep,
         "rows": df.shape[0],
         "columns": df.shape[1],
+        "sha256": evidence["dataset_sha256"],
+        "metadata_file": evidence["source"],
+        "metadata_warnings": evidence["warnings"],
     }
     return df, info

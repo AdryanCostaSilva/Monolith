@@ -1,10 +1,16 @@
+import json
+import tempfile
 import time
 import tkinter
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 import pandas as pd
 
 from src.config import DIMENSION_WEIGHTS
+from src.loading import load
+from src.metadata import METADATA_ATTR
 from src.profiling import profile
 from src.ui.main_window import NO_TARGET, DataReadinessApp
 
@@ -140,6 +146,130 @@ class WeightControlTests(unittest.TestCase):
         self.assertEqual(app.result["weight_source"], "study_defaults")
         self.assertIsNone(app.dimension_weights)
         self.assertIsNone(app.dimension_cards["Class Balance"].slider)
+
+    def test_context_displays_metadata_coverage_and_selected_target_status(self):
+        app = self.app
+        app.df.attrs[METADATA_ATTR] = {
+            "source": "sample.csv.metadata.json", "metadata": {
+                "columns": {"feature": {"description": "Input value"}},
+                "documentation": {
+                    "target_definition": {"column": "target", "description": "Class label"},
+                },
+                "provenance": {"origin": "Experiment archive"},
+            },
+        }
+        app._save_context(navigate=False)
+        self.assertIn("50%", app.evidence_labels["variable_descriptions"].cget("text"))
+        self.assertIn("Documented", app.evidence_labels["target_definition"].cget("text"))
+        self.assertIn("Documented", app.evidence_labels["origin"].cget("text"))
+
+        app.target_menu.set(NO_TARGET)
+        app._save_context(navigate=False)
+        self.assertEqual(app.evidence_labels["target_definition"].cget("text"), "Not applicable")
+
+        app.df.attrs.clear()
+        app._reset_context_controls()
+        self.assertIn("Missing", app.evidence_labels["origin"].cget("text"))
+        self.assertIn("No metadata selected", app.metadata_status.cget("text"))
+
+    def upload_metadata(self, metadata):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        path = Path(directory.name) / "chosen-description.json"
+        path.write_text(json.dumps(metadata), encoding="utf-8")
+        with patch("src.ui.main_window.filedialog.askopenfilename", return_value=str(path)):
+            self.app._load_metadata()
+        self.assertTrue(self.app._busy)
+        self.assertEqual(self.app.metadata_button.cget("state"), "disabled")
+        wait_for_evaluation(self.app)
+        self.assertFalse(self.app._busy)
+        return path
+
+    def test_metadata_picker_invalidates_results_and_preserves_context(self):
+        app = self.app
+        context, dataset_profile = app.context, app.dataset_profile
+        path = self.upload_metadata({
+            "schema_version": "1", "columns": {"feature": {"description": "Input"}},
+            "provenance": {"origin": "Test archive"},
+        })
+        self.assertEqual(app.info["metadata_file"], path.name)
+        self.assertIn(path.name, app.metadata_status.cget("text"))
+        self.assertIn("50%", app.evidence_labels["variable_descriptions"].cget("text"))
+        self.assertIn("Documented", app.evidence_labels["origin"].cget("text"))
+        self.assertFalse(app.provenance_vars["origin"].get())
+        self.assertIs(app.context, context)
+        self.assertIs(app.dataset_profile, dataset_profile)
+        self.assertIsNone(app.result)
+        self.assertEqual(app.export_button.cget("state"), "disabled")
+        self.assertEqual(app.remove_metadata_button.cget("state"), "normal")
+
+    def test_metadata_picker_cancellation_preserves_current_results(self):
+        result = self.app.result
+        with patch("src.ui.main_window.filedialog.askopenfilename", return_value=""):
+            self.app._load_metadata()
+        self.assertIs(self.app.result, result)
+        self.assertFalse(self.app._busy)
+
+    def test_checkbox_changes_update_status_and_unchecking_restores_json(self):
+        app = self.app
+        self.upload_metadata({"schema_version": "1", "columns": {"feature": {"description": "Input"}}})
+        checkbox = next(widget for widget in app.documentation_frame.winfo_children()
+                        if widget.cget("text") == "Variable descriptions")
+        checkbox.toggle()
+        self.assertIn("Self reported", app.evidence_labels["variable_descriptions"].cget("text"))
+        self.assertIn("100%", app.evidence_labels["variable_descriptions"].cget("text"))
+        app._evaluate()
+        wait_for_evaluation(app)
+        documentation = next(item for item in app.result["dimensions"] if item["dimension"] == "Documentation")
+        self.assertEqual(documentation["indicators"][0]["value"], 100)
+
+        checkbox.toggle()
+        self.assertIn("50%", app.evidence_labels["variable_descriptions"].cget("text"))
+        self.assertIsNone(app.result)
+        self.assertEqual(app.export_button.cget("state"), "disabled")
+
+    def test_removing_metadata_keeps_checkbox_confirmations(self):
+        app = self.app
+        self.upload_metadata({"schema_version": "1", "provenance": {"origin": "Test archive"}})
+        app.provenance_vars["collector"].set(True)
+        app._evaluate()
+        wait_for_evaluation(app)
+        app.remove_metadata_button.invoke()
+        self.assertIsNone(app.result)
+        self.assertIsNone(app.info["metadata_file"])
+        self.assertTrue(app.provenance_vars["collector"].get())
+        self.assertIn("Missing", app.evidence_labels["origin"].cget("text"))
+        self.assertIn("Self reported", app.evidence_labels["collector"].cget("text"))
+        self.assertEqual(app.remove_metadata_button.cget("state"), "disabled")
+        app._evaluate()
+        wait_for_evaluation(app)
+        provenance = next(item for item in app.result["dimensions"] if item["dimension"] == "Provenance")
+        self.assertEqual(provenance["score"], 20)
+
+    def test_loading_a_new_dataset_clears_metadata_and_checkboxes(self):
+        app = self.app
+        self.upload_metadata({"schema_version": "1", "provenance": {"origin": "Test archive"}})
+        app.provenance_vars["collector"].set(True)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "replacement.csv"
+            path.write_text("feature,target\n2,0\n3,1\n")
+            df, info = load(path)
+            app._dataset_loaded((df, info, profile(df)))
+        self.assertIsNone(app.info["metadata_file"])
+        self.assertFalse(app.provenance_vars["collector"].get())
+        self.assertIn("No metadata selected", app.metadata_status.cget("text"))
+        self.assertEqual(app.remove_metadata_button.cget("state"), "disabled")
+
+    def test_invalid_metadata_replacement_discards_previous_json(self):
+        app = self.app
+        self.upload_metadata({"schema_version": "1", "provenance": {"origin": "Test archive"}})
+        app.provenance_vars["collector"].set(True)
+        self.upload_metadata({"schema_version": "unsupported"})
+        self.assertTrue(app.info["metadata_warnings"])
+        self.assertIn("schema_version", app.metadata_status.cget("text"))
+        self.assertIn("Missing", app.evidence_labels["origin"].cget("text"))
+        self.assertIn("Self reported", app.evidence_labels["collector"].cget("text"))
+        self.assertIsNone(app.result)
 
 
 if __name__ == "__main__":

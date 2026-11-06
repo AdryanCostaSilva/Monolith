@@ -29,6 +29,40 @@ On Windows, use `python` instead of `python3` and activate the environment with
    **Choose metadata JSON** in the Context tab to select a metadata file.
 3. **Run the evaluation** to view the data-readiness score, issues, and recommended
    improvements. Export the report as JSON or HTML if needed.
+4. **Open Preparation** and follow its optional steps:
+   - **Inspect:** explore a feature with a histogram, box plot, missing-value bars,
+     or target counts. Filled/missing and small category distributions also have
+     directly labelled donut charts. Share charts include missing rows and are
+     limited to five categories; use frequency bars for more categories.
+   - **Clean:** handle missing values, exact duplicates, text variants, or IQR
+     outliers. Preview affected records and exact row/cell counts before applying.
+   - **Normalize:** select a numerical feature and preview min-max scaling or
+     z-score standardization. This step is separate from cleanup.
+   - **Compare and export:** compare original/prepared readiness as a chart or
+     table, then export a CSV, XLSX, or Parquet file with a `_preparation.json`
+     companion containing the history, fitted parameters, source metadata, and
+     comparison if one was run.
+5. **Undo or reset** at any time. Changing steps discards an unapplied preview;
+   it never applies it automatically. The Results tab and its report always
+   assess the original data.
+
+The target is protected from column transformations; changing the saved target
+resets preparation. Numerical IDs and category codes should be excluded by the
+user. Outlier flags identify unusual values, not confirmed errors. For machine
+learning, fit scaling, imputation, and outlier thresholds on training data only;
+reuse the fitted parameters on validation/test data. Scaling does not itself
+improve a readiness score.
+
+Preparation logic lives in `src/preparation/`; the page and chart views live in
+`src/ui/preparation_page.py` and `src/ui/preparation_charts.py`. The existing
+evaluation engine and score definitions are shared without changing their rules.
+Comparisons use the same saved context, current source metadata, and weights for
+both versions. Changing metadata invalidates old comparisons without losing the
+applied preparation history. Source metadata remains labelled as source evidence;
+review column units and category descriptions when exporting transformed data.
+
+Run regression checks with `python -m unittest discover -s tests -v` and the
+reproducible engine demonstration with `python -m demo.run_demo`.
 
 ## Documentation and provenance assessment
 

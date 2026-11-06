@@ -14,22 +14,29 @@ from src.loading import load
 from src.metadata import METADATA_ATTR, read_metadata
 from src.profiling import profile
 from src.reporting import export_html, export_json, generate_report
-from src.ui.dimension_card import MUTED_TEXT, DimensionCard
+from src.ui import theme
+from src.ui.dimension_card import DimensionCard
+from src.ui.preparation_page import PreparationPage
+from src.ui.theme import CONTROL, DISABLED, INK, MUTED, combobox, font, style_ttk
+from src.ui.widgets import BusyLine, CheckBox, LevelMeter, Tabs, animate, button, emphasize
 
 
 LOAD_TAB = "1. Load"
 CONTEXT_TAB = "2. Context"
 EVALUATE_TAB = "3. Evaluate"
 RESULTS_TAB = "4. Results"
+PREPARATION_TAB = "5. Preparation"
 NO_TARGET = "No target"
 WEIGHT_HELP = (
     "Defaults informed by our studies. Adjust relative importance; "
     "0 leaves a dimension out of the overall score."
 )
+READINESS_LEVELS = {"Not ready": 1, "Requires preparation": 2, "Almost ready": 3, "Ready": 4}
 
 
 class DataReadinessApp(ctk.CTk):
     def __init__(self):
+        theme.install()
         super().__init__()
         self.title("Data Readiness Framework")
         self.geometry("1120x780")
@@ -46,184 +53,232 @@ class DataReadinessApp(ctk.CTk):
         self.provenance_vars = {}
         self.evidence_labels = {}
         self._busy = False
+        self._busy_job = None
+        self._shown_score = 0.0
         self.dimension_weights = None
         self.weight_task_type = None
         self.weights_expanded = False
         self.dimension_cards = {}
+        self._loaded_path = None
 
         self._build_interface()
+        style_ttk(self)
+
+    def _set_appearance_mode(self, mode_string):
+        super()._set_appearance_mode(mode_string)
+        if hasattr(self, "tabs"):
+            style_ttk(self)
+
+    def destroy(self):
+        # Pending animation frames would otherwise fire after their widgets are gone. Cancel the
+        # timers only; each widget still deletes its own callback commands as it is destroyed.
+        try:
+            for job in self.tk.call("after", "info"):
+                self.tk.call("after", "cancel", job)
+        except Exception:
+            pass
+        super().destroy()
 
     def _build_interface(self):
-        header = ctk.CTkFrame(self, fg_color="transparent")
-        header.pack(fill="x", padx=24, pady=(18, 8))
-        ctk.CTkLabel(
-            header,
-            text="Data Readiness Framework",
-            font=ctk.CTkFont(size=24, weight="bold"),
-        ).pack(side="left")
-        ctk.CTkLabel(
-            header,
-            text="Evaluate whether tabular data is ready for use",
-            text_color="gray",
-        ).pack(side="left", padx=16)
+        header = ctk.CTkFrame(self, fg_color="transparent", corner_radius=0)
+        header.pack(fill="x", padx=32, pady=(12, 0))
+        header.grid_columnconfigure(2, weight=1)
+        ctk.CTkLabel(header, text="Data Readiness Framework", font=font(15, "semibold")).grid(
+            row=0, column=0, sticky="w"
+        )
+        # The divider under the header doubles as the busy indicator.
+        self.busy_bar = BusyLine(self)
+        self.busy_bar.pack(fill="x")
 
-        self.tabs = ctk.CTkTabview(self)
-        self.tabs.pack(fill="both", expand=True, padx=20, pady=(0, 20))
-        for name in (LOAD_TAB, CONTEXT_TAB, EVALUATE_TAB, RESULTS_TAB):
-            self.tabs.add(name)
+        self.tabs = Tabs(
+            self, header, (LOAD_TAB, CONTEXT_TAB, EVALUATE_TAB, RESULTS_TAB, PREPARATION_TAB),
+            command=self._tab_changed,
+        )
+        self.tabs.nav.grid(row=0, column=1, sticky="sw", padx=(40, 0))
+        self.tabs.pack(fill="both", expand=True, padx=32, pady=(28, 24))
 
         self._build_load_tab()
         self._build_context_tab()
         self._build_evaluate_tab()
         self._build_results_tab()
+        self.preparation_page = PreparationPage(self.tabs.tab(PREPARATION_TAB), self._run_background)
+        self.preparation_page.pack(fill="both", expand=True)
         self.tabs.set(LOAD_TAB)
+
+    def _tab_changed(self):
+        if self.tabs.get() == PREPARATION_TAB:
+            self.preparation_page.activate()
+
+    def _open_preparation(self):
+        self.tabs.set(PREPARATION_TAB)
+        self.preparation_page.activate()
+
+    @staticmethod
+    def _title(parent, text, size=20):
+        return ctk.CTkLabel(parent, text=text, font=font(size, "semibold"), text_color=INK, anchor="w")
+
+    @staticmethod
+    def _caption(parent, text="", **kwargs):
+        kwargs.setdefault("anchor", "w")
+        kwargs.setdefault("justify", "left")
+        return ctk.CTkLabel(parent, text=text, text_color=MUTED, font=font(12), **kwargs)
+
+    def _stat(self, parent, title, column):
+        stat = ctk.CTkFrame(parent, fg_color="transparent")
+        stat.grid(row=0, column=column, sticky="w", padx=(0, 48))
+        self._caption(stat, title).pack(anchor="w")
+        value = ctk.CTkLabel(stat, text="-", font=font(24, "semibold"), text_color=DISABLED, anchor="w")
+        value.pack(anchor="w")
+        return value
+
+    @staticmethod
+    def _set_stat(label, value):
+        """An empty value stays dim so the page reads calm until data arrives."""
+        label.configure(text=value, text_color=DISABLED if value == "-" else INK)
 
     def _build_load_tab(self):
         tab = self.tabs.tab(LOAD_TAB)
         tab.grid_columnconfigure(0, weight=1)
-        tab.grid_rowconfigure(3, weight=1)
+        tab.grid_rowconfigure(4, weight=1)
 
         top = ctk.CTkFrame(tab, fg_color="transparent")
-        top.grid(row=0, column=0, sticky="ew", padx=14, pady=(14, 8))
-        ctk.CTkLabel(
-            top,
-            text="Load a dataset",
-            font=ctk.CTkFont(size=20, weight="bold"),
-        ).pack(side="left")
-        self.load_button = ctk.CTkButton(
-            top,
-            text="Choose CSV, XLSX or Parquet",
-            command=self._load_dataset,
-            width=230,
-        )
-        self.load_button.pack(side="right")
-
+        top.grid(row=0, column=0, sticky="ew")
+        top.grid_columnconfigure(0, weight=1)
+        self._title(top, "Load a dataset").grid(row=0, column=0, sticky="w")
         self.load_status = ctk.CTkLabel(
-            tab, text="No dataset loaded.", text_color="gray", anchor="w"
+            top, text="CSV, XLSX or Parquet.", text_color=MUTED, anchor="w"
         )
-        self.load_status.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 8))
+        self.load_status.grid(row=1, column=0, sticky="ew")
+        self.load_button = button(top, "Choose file", self._load_dataset, "primary", width=140, height=36)
+        self.load_button.grid(row=0, column=1, rowspan=2, sticky="e")
 
-        cards = ctk.CTkFrame(tab, fg_color="transparent")
-        cards.grid(row=2, column=0, sticky="ew", padx=8, pady=4)
-        for column in range(4):
-            cards.grid_columnconfigure(column, weight=1)
+        stats = ctk.CTkFrame(tab, fg_color="transparent")
+        stats.grid(row=1, column=0, sticky="ew", pady=(32, 32))
         self.summary_values = {}
-        for column, title in enumerate(("Format", "Rows", "Columns", "% Missing")):
-            self.summary_values[title] = self._summary_card(cards, title, column)
+        for column, title in enumerate(("Format", "Rows", "Columns", "Missing")):
+            self.summary_values[title] = self._stat(stats, title, column)
 
-        self.profile_preview = ctk.CTkTextbox(tab, font=("Consolas", 12))
-        self.profile_preview.grid(
-            row=3, column=0, sticky="nsew", padx=14, pady=(10, 12)
+        self._title(tab, "Column profile", 15).grid(row=2, column=0, sticky="w", pady=(0, 12))
+        self.profile_empty = self._caption(tab, "Load a dataset to see its columns.")
+        self.profile_empty.grid(row=3, column=0, sticky="ew")
+        self.profile_frame = ctk.CTkFrame(tab, fg_color="transparent")
+        self.profile_frame.grid(row=4, column=0, sticky="nsew")
+        self.profile_frame.grid_columnconfigure(0, weight=1)
+        self.profile_frame.grid_rowconfigure(0, weight=1)
+        self.profile_table = ttk.Treeview(
+            self.profile_frame, columns=("column", "type", "missing", "unique"),
+            show="headings", style="Monolith.Treeview",
         )
-        self._set_text(self.profile_preview, "Load a dataset to see its profile.")
-
-        self.load_next_button = ctk.CTkButton(
-            tab,
-            text="Continue to Context",
-            command=lambda: self.tabs.set(CONTEXT_TAB),
-            state="disabled",
+        for name, title, width in (
+            ("column", "Column", 260), ("type", "Type", 160),
+            ("missing", "Missing", 120), ("unique", "Unique values", 120),
+        ):
+            self.profile_table.heading(name, text=title, anchor="w" if name in ("column", "type") else "e")
+            self.profile_table.column(
+                name, width=width, minwidth=60, anchor="w" if name in ("column", "type") else "e"
+            )
+        self.profile_table.grid(row=0, column=0, sticky="nsew")
+        scroll = ttk.Scrollbar(
+            self.profile_frame, orient="vertical", command=self.profile_table.yview,
+            style="Monolith.Vertical.TScrollbar",
         )
-        self.load_next_button.grid(row=4, column=0, sticky="e", padx=14, pady=(0, 12))
+        scroll.grid(row=0, column=1, sticky="ns")
+        self.profile_table.configure(yscrollcommand=scroll.set)
+        self.profile_frame.grid_remove()
 
-    def _summary_card(self, parent, title, column):
-        card = ctk.CTkFrame(parent)
-        card.grid(row=0, column=column, sticky="ew", padx=6)
-        ctk.CTkLabel(card, text=title, text_color="gray").pack(pady=(10, 0))
-        value = ctk.CTkLabel(card, text="-", font=ctk.CTkFont(size=22, weight="bold"))
-        value.pack(pady=(0, 10))
-        return value
+        self.load_next_button = button(
+            tab, "Continue to context", lambda: self.tabs.set(CONTEXT_TAB), "secondary", width=170, height=36,
+        )
+        self.load_next_button.configure(state="disabled")
+        self.load_next_button.grid(row=5, column=0, sticky="e", pady=(24, 0))
+
+    def _show_profile(self, message=None):
+        self.profile_table.delete(*self.profile_table.get_children())
+        if message is not None:
+            self.profile_frame.grid_remove()
+            self.profile_empty.configure(text=message)
+            self.profile_empty.grid()
+            return
+        for name, values in self.dataset_profile["columns"].items():
+            self.profile_table.insert("", "end", values=(
+                name, values["type"], f"{values['missing_percentage']:.2f}%", f"{values['unique_count']:,}",
+            ))
+        self.profile_empty.grid_remove()
+        self.profile_frame.grid()
 
     def _build_context_tab(self):
         tab = self.tabs.tab(CONTEXT_TAB)
         tab.grid_columnconfigure(0, weight=1)
         tab.grid_rowconfigure(2, weight=1)
 
-        form = ctk.CTkFrame(tab)
-        form.grid(row=0, column=0, sticky="ew", padx=14, pady=(14, 8))
+        form = ctk.CTkFrame(tab, fg_color="transparent")
+        form.grid(row=0, column=0, sticky="ew")
         form.grid_columnconfigure(0, weight=3)
         form.grid_columnconfigure(1, weight=1)
         form.grid_columnconfigure(2, weight=1)
 
         self.goal_entry = self._form_field(form, "Project goal", 0)
-        ctk.CTkLabel(form, text="Task type", anchor="w").grid(
-            row=0, column=1, sticky="ew", padx=8, pady=(8, 2)
-        )
+        self._caption(form, "Task type").grid(row=0, column=1, sticky="ew", padx=(16, 0), pady=(0, 4))
         self.task_menu = ctk.CTkOptionMenu(
-            form, values=["classification", "regression", "other"]
+            form, values=["classification", "regression", "other"], height=36, font=font(13),
+            dropdown_font=font(13),
         )
         self.task_menu.set("other")
-        self.task_menu.grid(row=1, column=1, sticky="ew", padx=8, pady=(0, 10))
+        self.task_menu.grid(row=1, column=1, sticky="ew", padx=(16, 0))
 
-        ctk.CTkLabel(form, text="Target column", anchor="w").grid(
-            row=0, column=2, sticky="ew", padx=8, pady=(8, 2)
-        )
-        self.target_menu = ttk.Combobox(
-            form,
-            values=[NO_TARGET],
-            state="readonly",
-            height=12,
-        )
+        self._caption(form, "Target column").grid(row=0, column=2, sticky="ew", padx=(16, 0), pady=(0, 4))
+        self.target_menu = combobox(form, values=[NO_TARGET], state="readonly", height=12)
         self.target_menu.set(NO_TARGET)
-        self.target_menu.grid(row=1, column=2, sticky="ew", padx=8, pady=(0, 10))
+        self.target_menu.grid(row=1, column=2, sticky="ew", padx=(16, 0))
         self.target_menu.bind("<<ComboboxSelected>>", self._context_evidence_changed)
 
         metadata_controls = ctk.CTkFrame(tab, fg_color="transparent")
-        metadata_controls.grid(row=1, column=0, sticky="ew", padx=14)
+        metadata_controls.grid(row=1, column=0, sticky="ew", pady=(20, 0))
         metadata_controls.grid_columnconfigure(0, weight=1)
-        self.metadata_status = ctk.CTkLabel(
-            metadata_controls, text="No metadata selected. Checked items take priority over JSON.",
-            anchor="w", justify="left", wraplength=550, text_color=MUTED_TEXT,
+        self.metadata_status = self._caption(
+            metadata_controls, "No metadata selected. Checked items take priority over JSON.",
+            wraplength=600,
         )
-        self.metadata_status.grid(row=0, column=0, sticky="ew", padx=(0, 8))
-        self.metadata_button = ctk.CTkButton(
-            metadata_controls, text="Choose metadata JSON", command=self._load_metadata,
-            state="disabled", width=165,
+        self.metadata_status.grid(row=0, column=0, sticky="ew", padx=(0, 16))
+        self.metadata_button = button(
+            metadata_controls, "Choose metadata JSON", self._load_metadata, "secondary", width=170,
         )
-        self.metadata_button.grid(row=0, column=1, padx=4)
-        self.remove_metadata_button = ctk.CTkButton(
-            metadata_controls, text="Remove", command=self._remove_metadata,
-            state="disabled", width=80,
+        self.metadata_button.configure(state="disabled")
+        self.metadata_button.grid(row=0, column=1)
+        self.remove_metadata_button = button(
+            metadata_controls, "Remove", self._remove_metadata, "ghost", width=80,
         )
-        self.remove_metadata_button.grid(row=0, column=2, padx=4)
+        self.remove_metadata_button.configure(state="disabled")
+        self.remove_metadata_button.grid(row=0, column=2, padx=(8, 0))
 
         checklists = ctk.CTkFrame(tab, fg_color="transparent")
-        checklists.grid(row=2, column=0, sticky="nsew", padx=8, pady=8)
+        checklists.grid(row=2, column=0, sticky="nsew", pady=(32, 0))
         for column in range(3):
-            checklists.grid_columnconfigure(column, weight=1)
-        checklists.grid_rowconfigure(1, weight=1)
+            checklists.grid_columnconfigure(column, weight=1, uniform="checklist")
+        checklists.grid_rowconfigure(2, weight=1)
 
-        captions = {
-            1: DIMENSION_HELP["Documentation"],
-            2: DIMENSION_HELP["Provenance"],
-        }
-        for column, text in captions.items():
-            caption = ctk.CTkLabel(
-                checklists,
-                text=text,
-                text_color=MUTED_TEXT,
-                font=ctk.CTkFont(size=11),
-                justify="left",
-                anchor="w",
-                wraplength=300,
-            )
-            caption.grid(row=0, column=column, sticky="ew", padx=6, pady=(0, 6))
+        titles = ("Important columns", "Documentation", "Provenance")
+        captions = (
+            "Columns that matter most for the project goal.",
+            DIMENSION_HELP["Documentation"],
+            DIMENSION_HELP["Provenance"],
+        )
+        for column, (title, text) in enumerate(zip(titles, captions)):
+            padx = (0 if column == 0 else 24, 0)
+            self._title(checklists, title, 15).grid(row=0, column=column, sticky="ew", padx=padx)
+            caption = self._caption(checklists, text, wraplength=300)
+            caption.grid(row=1, column=column, sticky="new", padx=padx, pady=(4, 8))
             if column == 1:
                 self.documentation_caption = caption
-            else:
+            elif column == 2:
                 self.provenance_caption = caption
 
-        self.important_frame = ctk.CTkScrollableFrame(
-            checklists, label_text="Important columns", height=220
-        )
-        self.important_frame.grid(row=1, column=0, sticky="nsew", padx=6)
-        self.documentation_frame = ctk.CTkScrollableFrame(
-            checklists, label_text="Documentation · self-reported claims", height=220
-        )
-        self.documentation_frame.grid(row=1, column=1, sticky="nsew", padx=6)
-        self.provenance_frame = ctk.CTkScrollableFrame(
-            checklists, label_text="Provenance · self-reported claims", height=220
-        )
-        self.provenance_frame.grid(row=1, column=2, sticky="nsew", padx=6)
+        frames = []
+        for column in range(3):
+            frame = ctk.CTkScrollableFrame(checklists, fg_color="transparent", corner_radius=0, height=200)
+            frame.grid(row=2, column=column, sticky="nsew", padx=(0 if column == 0 else 24, 0))
+            frames.append(frame)
+        self.important_frame, self.documentation_frame, self.provenance_frame = frames
         self._build_checklist(
             self.documentation_frame, DOCUMENTATION_ITEMS, self.documentation_vars
         )
@@ -231,30 +286,28 @@ class DataReadinessApp(ctk.CTk):
             self.provenance_frame, PROVENANCE_ITEMS, self.provenance_vars
         )
 
-        notes_frame = ctk.CTkFrame(tab)
-        notes_frame.grid(row=3, column=0, sticky="ew", padx=14, pady=8)
-        ctk.CTkLabel(notes_frame, text="Notes", anchor="w").pack(
-            fill="x", padx=10, pady=(8, 2)
+        notes_frame = ctk.CTkFrame(tab, fg_color="transparent")
+        notes_frame.grid(row=3, column=0, sticky="ew", pady=(24, 0))
+        self._caption(notes_frame, "Notes").pack(fill="x", pady=(0, 4))
+        self.notes_textbox = ctk.CTkTextbox(
+            notes_frame, height=64, border_width=1, border_color=CONTROL, corner_radius=6, font=font(13)
         )
-        self.notes_textbox = ctk.CTkTextbox(notes_frame, height=70)
-        self.notes_textbox.pack(fill="x", padx=10, pady=(0, 10))
+        self.notes_textbox.pack(fill="x")
 
         footer = ctk.CTkFrame(tab, fg_color="transparent")
-        footer.grid(row=4, column=0, sticky="ew", padx=14, pady=(4, 12))
+        footer.grid(row=4, column=0, sticky="ew", pady=(24, 0))
         self.context_status = ctk.CTkLabel(
-            footer, text="Load a dataset before setting the context.", text_color="gray"
+            footer, text="Load a dataset before setting the context.", text_color=MUTED
         )
         self.context_status.pack(side="left")
-        ctk.CTkButton(
-            footer, text="Save and Continue", command=self._save_context
+        button(
+            footer, "Save and continue", self._save_context, "primary", width=160, height=36
         ).pack(side="right")
 
     def _form_field(self, parent, title, column):
-        ctk.CTkLabel(parent, text=title, anchor="w").grid(
-            row=0, column=column, sticky="ew", padx=8, pady=(8, 2)
-        )
-        entry = ctk.CTkEntry(parent)
-        entry.grid(row=1, column=column, sticky="ew", padx=8, pady=(0, 10))
+        self._caption(parent, title).grid(row=0, column=column, sticky="ew", pady=(0, 4))
+        entry = ctk.CTkEntry(parent, height=36, font=font(13))
+        entry.grid(row=1, column=column, sticky="ew")
         return entry
 
     def _build_checklist(self, parent, items, variables):
@@ -262,17 +315,14 @@ class DataReadinessApp(ctk.CTk):
         for row, item in enumerate(items):
             variable = BooleanVar(value=False)
             variables[item] = variable
-            ctk.CTkCheckBox(
+            CheckBox(
                 parent,
                 text=item.replace("_", " ").capitalize(),
                 variable=variable,
                 command=self._context_evidence_changed,
-            ).grid(row=row * 2, column=0, sticky="w", padx=8, pady=(5, 0))
-            label = ctk.CTkLabel(
-                parent, text="Evidence missing · 0%", anchor="w", justify="left",
-                font=ctk.CTkFont(size=11), text_color=MUTED_TEXT, wraplength=250,
-            )
-            label.grid(row=row * 2 + 1, column=0, sticky="ew", padx=8, pady=(0, 5))
+            ).grid(row=row * 2, column=0, sticky="w", pady=(8, 0))
+            label = self._caption(parent, "Evidence missing, 0%", wraplength=250)
+            label.grid(row=row * 2 + 1, column=0, sticky="ew", padx=(26, 0), pady=(0, 4))
             self.evidence_labels[item] = label
 
     def _refresh_metadata_evidence(self, context):
@@ -281,7 +331,7 @@ class DataReadinessApp(ctk.CTk):
             for item in (*dimension["indicators"], *dimension["excluded_indicators"]):
                 text = (
                     "Not applicable" if item["status"] == "not_applicable" else
-                    f"{item['status'].replace('_', ' ').capitalize()} · {item['value']:g}%"
+                    f"{item['status'].replace('_', ' ').capitalize()}, {item['value']:g}%"
                 )
                 self.evidence_labels[item["item"]].configure(text=text)
 
@@ -329,10 +379,11 @@ class DataReadinessApp(ctk.CTk):
         self.df.attrs[METADATA_ATTR] = evidence
         self.info["metadata_file"] = evidence["source"]
         self.info["metadata_warnings"] = list(evidence["warnings"])
+        self.preparation_page.evidence_changed()
         self._reset_results()
         self._refresh_metadata_status()
         self._refresh_metadata_evidence(self._context_from_controls())
-        self.evaluation_status.configure(text="Metadata changed. Run the evaluation again.", text_color="gray")
+        self.evaluation_status.configure(text="Metadata changed. Run the evaluation again.", text_color=MUTED)
 
     def _remove_metadata(self):
         if self._busy or self.df is None:
@@ -342,32 +393,36 @@ class DataReadinessApp(ctk.CTk):
     def _build_evaluate_tab(self):
         tab = self.tabs.tab(EVALUATE_TAB)
         tab.grid_columnconfigure(0, weight=1)
-        tab.grid_rowconfigure(0, weight=1)
 
-        panel = ctk.CTkFrame(tab)
-        panel.grid(row=0, column=0, padx=140, pady=100, sticky="nsew")
-        panel.grid_columnconfigure(0, weight=1)
-        panel.grid_rowconfigure(0, weight=1)
-        ctk.CTkLabel(
-            panel,
-            text="Evaluate Data Readiness",
-            font=ctk.CTkFont(size=24, weight="bold"),
-        ).grid(row=0, column=0, padx=20, pady=(45, 10))
+        self._title(tab, "Evaluate readiness").grid(row=0, column=0, sticky="w")
         self.evaluation_status = ctk.CTkLabel(
-            panel,
-            text="Load a dataset and save its usage context first.",
-            text_color="gray",
+            tab, text="Load a dataset and save its usage context first.", text_color=MUTED, anchor="w",
         )
-        self.evaluation_status.grid(row=1, column=0, padx=20, pady=10)
-        self.evaluate_button = ctk.CTkButton(
-            panel,
-            text="Evaluate",
-            command=self._evaluate,
-            state="disabled",
-            width=220,
-            height=42,
-        )
-        self.evaluate_button.grid(row=2, column=0, padx=20, pady=(10, 45))
+        self.evaluation_status.grid(row=1, column=0, sticky="ew")
+
+        review = ctk.CTkFrame(tab, fg_color="transparent")
+        review.grid(row=2, column=0, sticky="ew", pady=(32, 32))
+        self.review_values = {}
+        for column, title in enumerate(("Dataset", "Task", "Target", "Important columns")):
+            self.review_values[title] = self._stat(review, title, column)
+            self.review_values[title].configure(font=font(17, "semibold"))
+
+        self.evaluate_button = button(tab, "Evaluate", self._evaluate, "primary", width=160, height=36)
+        self.evaluate_button.configure(state="disabled")
+        self.evaluate_button.grid(row=3, column=0, sticky="w")
+
+    def _refresh_review(self):
+        context = self.context
+        values = {
+            "Dataset": self.info["file"] if self.info else "-",
+            "Task": context.task_type.capitalize() if context else "-",
+            "Target": "-" if context is None else (
+                NO_TARGET if context.target_column is None else str(context.target_column)
+            ),
+            "Important columns": f"{len(context.important_columns):,}" if context else "-",
+        }
+        for name, value in values.items():
+            self._set_stat(self.review_values[name], value)
 
     def _build_results_tab(self):
         outer = self.tabs.tab(RESULTS_TAB)
@@ -380,108 +435,81 @@ class DataReadinessApp(ctk.CTk):
         tab = self.results_scroll
         tab.grid_columnconfigure(0, weight=1)
 
-        summary = ctk.CTkFrame(tab)
-        summary.grid(row=0, column=0, sticky="ew", padx=14, pady=(14, 8))
+        summary = ctk.CTkFrame(tab, fg_color="transparent")
+        summary.grid(row=0, column=0, sticky="ew", padx=(0, 12))
+        summary.grid_columnconfigure(1, weight=1)
         self.score_label = ctk.CTkLabel(
-            summary, text="-", font=ctk.CTkFont(size=34, weight="bold")
+            summary, text="-", font=font(44, "bold"), text_color=DISABLED, anchor="w"
         )
-        self.score_label.pack(side="left", padx=(20, 12), pady=14)
+        self.score_label.grid(row=0, column=0, rowspan=2, sticky="w", padx=(0, 20))
         self.classification_label = ctk.CTkLabel(
-            summary, text="Run an evaluation to see results.", text_color="gray"
+            summary, text="Run an evaluation to see results.", text_color=MUTED,
+            font=font(15, "semibold"), anchor="w",
         )
-        self.classification_label.pack(side="left", pady=14)
-        self.export_button = ctk.CTkButton(
-            summary,
-            text="Export Report",
-            command=self._export_report,
-            state="disabled",
-        )
-        self.export_button.pack(side="right", padx=20, pady=14)
+        self.classification_label.grid(row=0, column=1, sticky="sw")
+        self.level_meter = LevelMeter(summary)
+        self.level_meter.grid(row=1, column=1, sticky="nw", pady=(6, 0))
+        self.prepare_button = button(summary, "Prepare dataset", self._open_preparation, "primary", width=150)
+        self.prepare_button.configure(state="disabled")
+        self.prepare_button.grid(row=0, column=2, rowspan=2, padx=(0, 8))
+        self.export_button = button(summary, "Export report", self._export_report, "secondary", width=130)
+        self.export_button.configure(state="disabled")
+        self.export_button.grid(row=0, column=3, rowspan=2)
 
-        weights_header = ctk.CTkFrame(tab, fg_color=("#F7F9FC", "#2D3237"))
-        weights_header.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 10))
+        weights_header = ctk.CTkFrame(tab, fg_color="transparent")
+        weights_header.grid(row=1, column=0, sticky="ew", padx=(0, 12), pady=(40, 12))
         weights_header.grid_columnconfigure(1, weight=1)
-        self.weights_title = ctk.CTkLabel(
-            weights_header,
-            text="Dimension weights",
-            font=ctk.CTkFont(size=13, weight="bold"),
-        )
-        self.weights_title.grid(row=0, column=0, sticky="w", padx=(16, 0), pady=10)
-        self.weight_source_label = ctk.CTkLabel(
-            weights_header,
-            text="Choose how much each dimension counts in the overall score.",
-            text_color=MUTED_TEXT,
-            font=ctk.CTkFont(size=12),
-            anchor="w",
+        self.weights_title = self._title(weights_header, "Dimension weights", 15)
+        self.weights_title.grid(row=0, column=0, sticky="w")
+        self.weight_source_label = self._caption(
+            weights_header, "Choose how much each dimension counts in the overall score."
         )
         self.weight_source_label.grid(row=0, column=1, sticky="w", padx=12)
-        self.weight_toggle = ctk.CTkButton(
-            weights_header,
-            text="Adjust weights",
-            command=self._toggle_weights,
-            width=130,
-            height=32,
-            state="disabled",
+        self.reset_weights_button = button(
+            weights_header, "Reset to defaults", self._reset_weights, "ghost", width=130,
         )
-        self.weight_toggle.grid(row=0, column=2, sticky="e", padx=(0, 8))
-        self.reset_weights_button = ctk.CTkButton(
-            weights_header,
-            text="Reset to defaults",
-            command=self._reset_weights,
-            fg_color="transparent",
-            hover_color=("#E5E9ED", "#34383E"),
-            text_color=("#51697D", "#B1C1CE"),
-            border_width=1,
-            border_color=("#D3DAE1", "#494F57"),
-            width=126,
-            height=30,
-            state="disabled",
-        )
-        self.reset_weights_button.grid(row=0, column=3, sticky="e", padx=(0, 12))
+        self.reset_weights_button.configure(state="disabled")
+        self.reset_weights_button.grid(row=0, column=2, sticky="e", padx=(0, 8))
         self.reset_weights_button.grid_remove()
-        self.weight_help = ctk.CTkLabel(
-            weights_header,
-            text=WEIGHT_HELP,
-            text_color=MUTED_TEXT,
-            font=ctk.CTkFont(size=12),
-            anchor="w",
-            justify="left",
-            wraplength=740,
+        self.weight_toggle = button(
+            weights_header, "Adjust weights", self._toggle_weights, "secondary", width=130,
         )
-        self.weight_help.grid(
-            row=1, column=0, columnspan=4, sticky="ew", padx=16, pady=(0, 10)
-        )
+        self.weight_toggle.configure(state="disabled")
+        self.weight_toggle.grid(row=0, column=3, sticky="e")
+        self.weight_help = self._caption(weights_header, WEIGHT_HELP, wraplength=740)
+        self.weight_help.grid(row=1, column=0, columnspan=4, sticky="ew", pady=(4, 0))
         self.weight_help.grid_remove()
 
         self.dimension_frame = ctk.CTkFrame(tab, fg_color="transparent")
-        self.dimension_frame.grid(
-            row=2, column=0, sticky="ew", padx=8, pady=8
-        )
-        for column in range(3):
-            self.dimension_frame.grid_columnconfigure(column, weight=1, uniform="dimension")
+        self.dimension_frame.grid(row=2, column=0, sticky="ew", padx=(0, 12))
+        # Cards sit in even columns; the odd columns are fixed gutters so every card is the same width.
+        for column in range(5):
+            if column % 2:
+                self.dimension_frame.grid_columnconfigure(column, minsize=12)
+            else:
+                self.dimension_frame.grid_columnconfigure(column, weight=1, uniform="dimension")
 
         details = ctk.CTkFrame(tab, fg_color="transparent")
-        details.grid(row=3, column=0, sticky="nsew", padx=8, pady=8)
-        details.grid_columnconfigure(0, weight=1)
-        details.grid_columnconfigure(1, weight=1)
+        details.grid(row=3, column=0, sticky="nsew", padx=(0, 12), pady=(40, 0))
+        details.grid_columnconfigure(0, weight=1, uniform="details")
+        details.grid_columnconfigure(1, weight=1, uniform="details")
         details.grid_rowconfigure(1, weight=1)
-        ctk.CTkLabel(details, text="Problems", font=ctk.CTkFont(weight="bold")).grid(
-            row=0, column=0, sticky="w", padx=6
+        self._title(details, "Problems", 15).grid(row=0, column=0, sticky="w", pady=(0, 12))
+        self._title(details, "Recommendations", 15).grid(
+            row=0, column=1, sticky="w", padx=(24, 0), pady=(0, 12)
         )
-        ctk.CTkLabel(
-            details, text="Recommendations", font=ctk.CTkFont(weight="bold")
-        ).grid(row=0, column=1, sticky="w", padx=6)
-        self.problems_textbox = ctk.CTkTextbox(details, height=140, wrap="word")
-        self.problems_textbox.grid(row=1, column=0, sticky="nsew", padx=6, pady=4)
-        self.recommendations_textbox = ctk.CTkTextbox(details, height=140, wrap="word")
-        self.recommendations_textbox.grid(
-            row=1, column=1, sticky="nsew", padx=6, pady=4
-        )
+        self.problems_textbox = ctk.CTkTextbox(details, height=160, wrap="word", font=font(13))
+        self.problems_textbox.grid(row=1, column=0, sticky="nsew")
+        self.recommendations_textbox = ctk.CTkTextbox(details, height=160, wrap="word", font=font(13))
+        self.recommendations_textbox.grid(row=1, column=1, sticky="nsew", padx=(24, 0))
         self._set_text(self.problems_textbox, "No evaluation yet.")
         self._set_text(self.recommendations_textbox, "No evaluation yet.")
 
-        self.export_status = ctk.CTkLabel(tab, text="", text_color="gray")
-        self.export_status.grid(row=4, column=0, sticky="w", padx=14, pady=(0, 8))
+        self.export_status = ctk.CTkLabel(tab, text="", text_color=MUTED, anchor="w")
+        self.export_status.grid(row=4, column=0, sticky="ew", pady=(16, 0))
+        self._caption(
+            tab, "Assessment of the original dataset. Use Preparation to preview changes and compare a working copy.",
+        ).grid(row=5, column=0, sticky="ew", pady=(0, 8))
 
     def _load_dataset(self):
         if self._busy:
@@ -497,15 +525,18 @@ class DataReadinessApp(ctk.CTk):
         if not selected:
             return
 
+        self._loaded_path = selected
+        self.preparation_page.set_dataset()
         # Release the previous dataset before allocating a replacement.
         self.df = self.info = self.dataset_profile = self.context = self.result = None
         self._reset_results()
         self._refresh_metadata_status()
         self._refresh_metadata_evidence(UsageContext(""))
         for value in self.summary_values.values():
-            value.configure(text="-")
-        self._set_text(self.profile_preview, "Loading and profiling dataset...")
-        self.load_status.configure(text="Loading dataset...", text_color="gray")
+            self._set_stat(value, "-")
+        self._show_profile("Loading and profiling dataset...")
+        self._refresh_review()
+        self.load_status.configure(text="Loading dataset...", text_color=MUTED)
 
         def work(progress):
             df, info = load(selected, progress=progress)
@@ -514,8 +545,8 @@ class DataReadinessApp(ctk.CTk):
         self._run_background(
             work,
             self._dataset_loaded,
-            lambda error: self.load_status.configure(text=f"Error: {error}", text_color="#ff6b6b"),
-            lambda message: self.load_status.configure(text=message, text_color="gray"),
+            lambda error: self.load_status.configure(text=f"Error: {error}", text_color=INK),
+            lambda message: self.load_status.configure(text=message, text_color=MUTED),
         )
 
     def _dataset_loaded(self, loaded):
@@ -528,20 +559,23 @@ class DataReadinessApp(ctk.CTk):
         self.result = None
         self.dimension_weights = None
         self.weight_task_type = None
+        self.preparation_page.set_dataset(df, info, self._loaded_path)
         self.load_status.configure(
-            text=f"Dataset loaded: {info['file']}", text_color="#67d391"
+            text=f"Loaded {info['file']}", text_color=MUTED
         )
         summary = dataset_profile["dataset"]
         values = {
             "Format": info["format"].upper(),
-            "Rows": info["rows"],
-            "Columns": info["columns"],
-            "% Missing": f"{summary['missing_percentage']:.2f}%",
+            "Rows": f"{info['rows']:,}",
+            "Columns": f"{info['columns']:,}",
+            "Missing": f"{summary['missing_percentage']:.2f}%",
         }
         for name, value in values.items():
-            self.summary_values[name].configure(text=str(value))
-        self._set_text(self.profile_preview, self._profile_text())
+            self._set_stat(self.summary_values[name], str(value))
+        self._show_profile()
         self.load_next_button.configure(state="normal")
+        emphasize(self.load_button, False)
+        emphasize(self.load_next_button, True)
         self.evaluate_button.configure(state="normal")
         self._reset_context_controls()
         self._reset_results()
@@ -549,12 +583,15 @@ class DataReadinessApp(ctk.CTk):
     def _run_background(self, work, on_success, on_error, on_progress=None):
         """Run one operation off the Tk thread; deliver all UI changes via after()."""
         self._busy = True
+        self._show_busy(True)
+        self.preparation_page.set_busy(True)
         buttons = (
             self.load_button, self.load_next_button, self.evaluate_button,
             self.export_button, self.metadata_button, self.remove_metadata_button,
+            self.prepare_button,
         )
-        for button in buttons:
-            button.configure(state="disabled")
+        for widget in buttons:
+            widget.configure(state="disabled")
         messages = Queue()
 
         def worker():
@@ -578,6 +615,7 @@ class DataReadinessApp(ctk.CTk):
                     progress = value
                     continue
                 self._busy = False
+                self._show_busy(False)
                 try:
                     if kind == "success":
                         on_success(value)
@@ -592,19 +630,26 @@ class DataReadinessApp(ctk.CTk):
                         state="normal" if self.result is not None else "disabled"
                     )
                     self._refresh_metadata_controls()
+                    self.prepare_button.configure(state="normal" if self.result is not None else "disabled")
+                    self.preparation_page.set_busy(False)
                 return
 
         Thread(target=worker, daemon=True).start()
         self.after(100, poll)
 
-    def _profile_text(self):
-        lines = ["COLUMN PROFILE", ""]
-        for name, values in self.dataset_profile["columns"].items():
-            lines.append(
-                f"{name}: type={values['type']}, missing={values['missing_percentage']}%, "
-                f"unique={values['unique_count']}"
-            )
-        return "\n".join(lines)
+    def _show_busy(self, busy):
+        """Run the header line only for work slow enough to notice, and stop it the moment it ends."""
+        if self._busy_job is not None:
+            self.after_cancel(self._busy_job)
+            self._busy_job = None
+        if busy:
+            self._busy_job = self.after(150, self._start_busy_bar)
+        else:
+            self.busy_bar.stop()
+
+    def _start_busy_bar(self):
+        self._busy_job = None
+        self.busy_bar.start()
 
     def _reset_context_controls(self):
         self.goal_entry.delete(0, "end")
@@ -618,21 +663,22 @@ class DataReadinessApp(ctk.CTk):
         for row, name in enumerate(self.df.columns):
             variable = BooleanVar(value=False)
             self.important_vars[name] = variable
-            ctk.CTkCheckBox(
+            CheckBox(
                 self.important_frame, text=str(name), variable=variable
-            ).grid(row=row, column=0, sticky="w", padx=8, pady=5)
+            ).grid(row=row, column=0, sticky="w", pady=(8, 0))
         for variable in (*self.documentation_vars.values(), *self.provenance_vars.values()):
             variable.set(False)
         self.notes_textbox.delete("1.0", "end")
         self._refresh_metadata_status()
         self._refresh_metadata_evidence(UsageContext(""))
         self.context_status.configure(
-            text="Set the usage context, then continue.", text_color="gray"
+            text="Set the usage context, then continue.", text_color=MUTED
         )
         self.evaluation_status.configure(
-            text=f"Ready to evaluate {self.info['file']} after saving the context.",
-            text_color="gray",
+            text=f"Save the context to evaluate {self.info['file']}.",
+            text_color=MUTED,
         )
+        self._refresh_review()
 
     def _context_from_controls(self):
         target_name = self.target_menu.get()
@@ -660,13 +706,13 @@ class DataReadinessApp(ctk.CTk):
             return False
         if self.df is None:
             self.context_status.configure(
-                text="Load a dataset first.", text_color="#ff6b6b"
+                text="Load a dataset first.", text_color=INK
             )
             return False
         context = self._context_from_controls()
         if not context.project_goal:
             self.context_status.configure(
-                text="Enter a project goal.", text_color="#ff6b6b"
+                text="Enter a project goal to continue.", text_color=INK
             )
             return False
         if context != self.context:
@@ -678,10 +724,12 @@ class DataReadinessApp(ctk.CTk):
             self.weight_task_type = context.task_type
         self.context = context
         self._refresh_metadata_evidence(context)
-        self.context_status.configure(text="Context saved.", text_color="#67d391")
+        self.preparation_page.set_context(context, self.dimension_weights)
+        self.context_status.configure(text="Context saved.", text_color=INK)
         self.evaluation_status.configure(
-            text=f"{self.info['file']} is ready to evaluate.", text_color="gray"
+            text=f"{self.info['file']} is ready to evaluate.", text_color=MUTED
         )
+        self._refresh_review()
         if navigate:
             self.tabs.set(EVALUATE_TAB)
         return True
@@ -692,7 +740,7 @@ class DataReadinessApp(ctk.CTk):
         if not self._save_context(navigate=False):
             self.tabs.set(CONTEXT_TAB)
             return
-        self.evaluation_status.configure(text="Evaluating...", text_color="gray")
+        self.evaluation_status.configure(text="Evaluating...", text_color=MUTED)
         df, context, dataset_profile = self.df, self.context, self.dataset_profile
         dimension_weights = self.dimension_weights
         self._run_background(
@@ -701,19 +749,20 @@ class DataReadinessApp(ctk.CTk):
             ),
             self._evaluation_complete,
             lambda error: self.evaluation_status.configure(
-                text=f"Evaluation failed: {error}", text_color="#ff6b6b"
+                text=f"Evaluation failed: {error}", text_color=INK
             ),
         )
 
     def _evaluation_complete(self, result):
         self.result = result
-        self.evaluation_status.configure(text="Evaluation complete.", text_color="#67d391")
+        self.evaluation_status.configure(text="Evaluation complete.", text_color=MUTED)
         self._show_results()
         self.tabs.set(RESULTS_TAB)
 
     def _show_results(self):
-        color = self._refresh_score_summary()
+        self._refresh_score_summary(duration=600, start=0.0)
         self.weight_toggle.configure(state="normal")
+        self.prepare_button.configure(state="normal")
         for widget in self.dimension_frame.winfo_children():
             widget.destroy()
         self.dimension_cards = {}
@@ -726,20 +775,18 @@ class DataReadinessApp(ctk.CTk):
                 self.dimension_frame,
                 dimension,
                 defaults.get(name),
-                color,
                 lambda value, name=name: self._change_dimension_weight(name, value),
                 help_text=DIMENSION_HELP.get(name),
             )
-            card.grid(
-                row=index // 3, column=index % 3, sticky="nsew", padx=6, pady=6
-            )
+            card.grid(row=index // 3, column=index % 3 * 2, sticky="nsew", pady=(0, 12))
             card.set_controls_visible(self.weights_expanded)
+            card.reveal()
             self.dimension_cards[name] = card
             problems.extend(
-                f"[{name}] {item}" for item in dimension["problems"]
+                f"{name}: {item}" for item in dimension["problems"]
             )
             recommendations.extend(
-                f"[{name}] {item}" for item in dimension["recommendations"]
+                f"{name}: {item}" for item in dimension["recommendations"]
             )
 
         self._set_text(
@@ -752,27 +799,25 @@ class DataReadinessApp(ctk.CTk):
         )
         self.results_scroll._parent_canvas.yview_moveto(0)
 
-    def _refresh_score_summary(self):
-        colors = {
-            "Not ready": "#dc5a5a",
-            "Requires preparation": "#e0a93b",
-            "Almost ready": "#4ea3d8",
-            "Ready": "#4caf75",
-        }
-        color = colors[self.result["classification"]]
-        self.score_label.configure(text=f"{self.result['score']:.2f}", text_color=color)
-        self.classification_label.configure(
-            text=self.result["classification"], text_color=color
-        )
+    def _refresh_score_summary(self, duration=220, start=None):
+        score = self.result["score"]
+        origin = self._shown_score if start is None else start
+
+        def step(t):
+            self._shown_score = origin + (score - origin) * t
+            self.score_label.configure(text=f"{self._shown_score:.2f}", text_color=INK)
+
+        animate(self.score_label, "score", duration, step)
+        self.classification_label.configure(text=self.result["classification"], text_color=INK)
+        self.level_meter.set(READINESS_LEVELS.get(self.result["classification"], 0))
         self.export_button.configure(state="normal")
         self.export_status.configure(text="")
         custom = self.result["weight_source"] == "custom"
         source = "Custom weights" if custom else "Study defaults"
         self.weight_source_label.configure(
-            text=f"{source} · {self.context.task_type.capitalize()}"
+            text=f"{source} for {self.context.task_type}"
         )
         self.reset_weights_button.configure(state="normal" if custom else "disabled")
-        return color
 
     def _toggle_weights(self):
         self._set_weights_expanded(not self.weights_expanded)
@@ -780,7 +825,7 @@ class DataReadinessApp(ctk.CTk):
     def _set_weights_expanded(self, expanded):
         self.weights_expanded = expanded
         self.weight_toggle.configure(
-            text="Collapse weights" if expanded else "Adjust weights"
+            text="Hide weights" if expanded else "Adjust weights"
         )
         if expanded:
             self.weight_help.grid()
@@ -803,10 +848,12 @@ class DataReadinessApp(ctk.CTk):
         self._apply_dimension_weights(None, sync_sliders=True)
 
     def _apply_dimension_weights(self, weights, *, sync_sliders=False):
+        if self._busy:
+            return
         try:
             evaluation = aggregate(self.result["dimensions"], self.context.task_type, weights)
         except ValueError as error:
-            self.weight_help.configure(text=str(error), text_color=("#996723", "#DBB677"))
+            self.weight_help.configure(text=str(error), text_color=INK)
             for dimension in self.result["dimensions"]:
                 self.dimension_cards[dimension["dimension"]].update_weight(
                     dimension, sync_slider=True
@@ -815,25 +862,29 @@ class DataReadinessApp(ctk.CTk):
 
         self.result = evaluation
         self.dimension_weights = weights if evaluation["weight_source"] == "custom" else None
-        self.weight_help.configure(text=WEIGHT_HELP, text_color=MUTED_TEXT)
-        color = self._refresh_score_summary()
+        self.preparation_page.set_context(self.context, self.dimension_weights)
+        self.weight_help.configure(text=WEIGHT_HELP, text_color=MUTED)
+        self._refresh_score_summary()
         for dimension in evaluation["dimensions"]:
-            card = self.dimension_cards[dimension["dimension"]]
-            card.progress.configure(progress_color=color)
-            card.update_weight(dimension, sync_slider=sync_sliders)
+            self.dimension_cards[dimension["dimension"]].update_weight(
+                dimension, sync_slider=sync_sliders
+            )
 
     def _reset_results(self):
         self.result = None
         self._set_weights_expanded(False)
         self.weight_toggle.configure(state="disabled")
         self.weight_source_label.configure(text="Available after evaluation")
-        self.weight_help.configure(text=WEIGHT_HELP, text_color=MUTED_TEXT)
+        self.weight_help.configure(text=WEIGHT_HELP, text_color=MUTED)
         self.reset_weights_button.configure(state="disabled")
-        self.score_label.configure(text="-", text_color=("black", "white"))
+        animate(self.score_label, "score", 0, lambda t: self._set_stat(self.score_label, "-"))
+        self._shown_score = 0.0
         self.classification_label.configure(
-            text="Run an evaluation to see results.", text_color="gray"
+            text="Run an evaluation to see results.", text_color=MUTED
         )
+        self.level_meter.set(0)
         self.export_button.configure(state="disabled")
+        self.prepare_button.configure(state="disabled")
         self.export_status.configure(text="")
         for widget in self.dimension_frame.winfo_children():
             widget.destroy()
@@ -854,12 +905,12 @@ class DataReadinessApp(ctk.CTk):
             html_path = export_html(report, base.with_suffix(".html"))
         except Exception as error:
             self.export_status.configure(
-                text=f"Export failed: {error}", text_color="#ff6b6b"
+                text=f"Export failed: {error}", text_color=INK
             )
             return
         self.export_status.configure(
             text=f"Saved {json_path.name} and {html_path.name}",
-            text_color="#67d391",
+            text_color=INK,
         )
 
     @staticmethod

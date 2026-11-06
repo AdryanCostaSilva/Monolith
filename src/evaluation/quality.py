@@ -1,17 +1,15 @@
+import numpy as np
 from pandas.api.types import is_bool_dtype, is_numeric_dtype
 
 from src.evaluation.base import add_problem, indicator, percentage, result
+from src.profiling.outliers import iqr_details
 from src.profiling.values import value_counts
 
 
 def _count_outliers(series):
-    values = series.dropna()
-    if values.empty:
-        return 0, 0
-    q1, q3 = values.quantile([0.25, 0.75])
-    iqr = q3 - q1
-    count = int(((values < q1 - 1.5 * iqr) | (values > q3 + 1.5 * iqr)).sum())
-    return count, len(values)
+    values = series.to_numpy(dtype=float, na_value=np.nan)
+    mask, _ = iqr_details(values)
+    return int(mask.sum()), int((~np.isnan(values)).sum())
 
 
 def evaluate(df, dataset_profile=None):

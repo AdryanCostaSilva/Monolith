@@ -2,8 +2,10 @@ import tkinter as tk
 
 import customtkinter as ctk
 
+from src.ui.theme import FAMILY, INK, LINE, LINE_STRONG, MUTED, SURFACE, SURFACE_2, SURFACE_3, TEXT_2, font
+from src.ui.widgets import animate
 
-MUTED_TEXT = ("#6B7280", "#A0A6AF")
+
 TOOLTIP_DELAY_MS = 350
 
 
@@ -22,9 +24,9 @@ class _CardTooltip:
         self.window = None
         self.job = None
         self.hide_job = None
-        widget.bind("<Enter>", self._schedule)
-        widget.bind("<Leave>", self._schedule_hide)
-        widget.bind("<ButtonPress-1>", self._hide)
+        widget.bind("<Enter>", self._schedule, add="+")
+        widget.bind("<Leave>", self._schedule_hide, add="+")
+        widget.bind("<ButtonPress-1>", self._hide, add="+")
 
     def _schedule(self, _event=None):
         self._cancel_jobs()
@@ -45,7 +47,7 @@ class _CardTooltip:
         if self.window is not None or not self.text:
             return
         x = self.widget.winfo_rootx() - 8
-        y = self.widget.winfo_rooty() + self.widget.winfo_height() - 2
+        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 4
         window = tk.Toplevel(self.widget)
         window.wm_overrideredirect(True)
         window.wm_attributes("-topmost", True)
@@ -56,13 +58,16 @@ class _CardTooltip:
         label = tk.Label(
             window,
             text=self.text,
-            wraplength=280,
+            wraplength=300,
             justify="left",
             anchor="w",
-            bg=_mode_colors(("#F0F4FA", "#33363B")),
-            fg=_mode_colors(("#20262E", "#EFF1F4")),
-            padx=10,
-            pady=8,
+            bg=_mode_colors(SURFACE_2),
+            fg=_mode_colors(INK),
+            font=(FAMILY, 9),
+            padx=12,
+            pady=10,
+            highlightthickness=1,
+            highlightbackground=_mode_colors(LINE_STRONG),
         )
         label.pack()
         self.window = window
@@ -87,24 +92,19 @@ class _CardTooltip:
 
 
 class DimensionCard(ctk.CTkFrame):
-    def __init__(self, parent, dimension, default_weight, color, on_weight_change, help_text=None):
-        super().__init__(
-            parent,
-            corner_radius=10,
-            border_width=1,
-            border_color=("#E1E5E9", "#3A3D42"),
-            fg_color=("#FAFBFC", "#292B2F"),
-        )
+    def __init__(self, parent, dimension, default_weight, on_weight_change, help_text=None):
+        super().__init__(parent, corner_radius=8, border_width=1, border_color=LINE, fg_color=SURFACE)
         self.default_weight = default_weight
         self.applicable = dimension["applicable"]
         self.help_text = help_text
+        self.score = dimension["score"]
         self.grid_columnconfigure(0, weight=1)
 
         header = ctk.CTkFrame(self, fg_color="transparent")
-        header.grid(row=0, column=0, sticky="ew", padx=16, pady=(12, 0))
+        header.grid(row=0, column=0, sticky="ew", padx=16, pady=(14, 0))
         header.grid_columnconfigure(0, weight=1)
         ctk.CTkLabel(
-            header, text=dimension["dimension"], text_color=MUTED_TEXT, anchor="w"
+            header, text=dimension["dimension"], text_color=TEXT_2, font=font(13), anchor="w"
         ).grid(row=0, column=0, sticky="w")
         self.info_button = None
         if help_text:
@@ -116,65 +116,51 @@ class DimensionCard(ctk.CTkFrame):
                 text="?",
                 width=2,
                 bd=0,
-                bg=_mode_colors(("#E8EDF5", "#3A3E44")),
-                fg=_mode_colors(("#3D5A80", "#B7C6D4")),
-                font=("", 10, "bold"),
+                cursor="hand2",
+                bg=_mode_colors(SURFACE),
+                fg=_mode_colors(MUTED),
+                font=(FAMILY, 9, "bold"),
             )
-            self.info_button.bind(
-                "<Enter>",
-                lambda _e: self.info_button.configure(
-                    bg=_mode_colors(("#DCE4EF", "#4A4F56"))
-                ),
-            )
-            self.info_button.bind(
-                "<Leave>",
-                lambda _e: self.info_button.configure(
-                    bg=_mode_colors(("#E8EDF5", "#3A3E44"))
-                ),
-            )
+            self.info_button.bind("<Enter>", lambda _e: self.info_button.configure(fg=_mode_colors(INK)))
+            self.info_button.bind("<Leave>", lambda _e: self.info_button.configure(fg=_mode_colors(MUTED)))
             self.info_button.grid(row=0, column=1, sticky="e")
             self.tooltip = _CardTooltip(self.info_button, tooltip_text)
-        score = dimension["score"]
         ctk.CTkLabel(
             self,
-            text="N/A" if score is None else f"{score:.2f}",
-            font=ctk.CTkFont(size=26, weight="bold"),
-            text_color=MUTED_TEXT if score is None else ("#20262E", "#EFF1F4"),
+            text="N/A" if self.score is None else f"{self.score:.2f}",
+            font=font(26, "semibold"),
+            text_color=MUTED if self.score is None else INK,
             anchor="w",
-        ).grid(row=1, column=0, sticky="ew", padx=16, pady=(2, 6))
-        self.progress = ctk.CTkProgressBar(self, height=3, progress_color=color)
-        self.progress.grid(row=2, column=0, sticky="ew", padx=16, pady=(0, 14))
-        self.progress.set(0 if score is None else score / 100)
+        ).grid(row=1, column=0, sticky="ew", padx=16, pady=(0, 8))
+        self.progress = ctk.CTkProgressBar(self, height=4, fg_color=SURFACE_3)
+        self.progress.grid(row=2, column=0, sticky="ew", padx=16, pady=(0, 16))
+        self.progress.set(0)
 
         self.controls = ctk.CTkFrame(self, fg_color="transparent")
-        self.controls.grid(row=3, column=0, sticky="ew", padx=16, pady=(0, 14))
+        self.controls.grid(row=3, column=0, sticky="ew", padx=16, pady=(0, 16))
         self.controls.grid_columnconfigure(0, weight=1)
         self.slider = None
         if self.applicable:
             ctk.CTkLabel(
-                self.controls, text="Weight", text_color=MUTED_TEXT, anchor="w"
+                self.controls, text="Weight", text_color=MUTED, font=font(12), anchor="w"
             ).grid(row=0, column=0, sticky="w")
-            self.weight_value = ctk.CTkLabel(self.controls, width=42, anchor="e")
+            self.weight_value = ctk.CTkLabel(self.controls, width=42, font=font(13), anchor="e")
             self.weight_value.grid(row=0, column=1, sticky="e")
             self.slider = ctk.CTkSlider(
                 self.controls,
                 from_=0,
                 to=100,
                 number_of_steps=1000,
-                height=16,
-                button_length=12,
-                fg_color=("#DDE2E7", "#42464D"),
-                progress_color=("#71869A", "#8197AA"),
-                button_color=("#566F85", "#B1C1CE"),
-                button_hover_color=("#425B71", "#DAE3EA"),
+                height=14,
+                button_length=0,
                 command=on_weight_change,
             )
             self.slider.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(4, 6))
             self.weight_hint = ctk.CTkLabel(
                 self.controls,
                 text="",
-                text_color=MUTED_TEXT,
-                font=ctk.CTkFont(size=11),
+                text_color=MUTED,
+                font=font(12),
                 anchor="w",
             )
             self.weight_hint.grid(row=2, column=0, columnspan=2, sticky="ew")
@@ -183,11 +169,16 @@ class DimensionCard(ctk.CTkFrame):
             ctk.CTkLabel(
                 self.controls,
                 text="Not included in this task.",
-                text_color=MUTED_TEXT,
-                font=ctk.CTkFont(size=12),
+                text_color=MUTED,
+                font=font(12),
                 anchor="w",
             ).grid(row=0, column=0, sticky="w", pady=(18, 24))
         self.controls.grid_remove()
+
+    def reveal(self):
+        """Fill the score bar once, when results first appear."""
+        target = 0 if self.score is None else self.score / 100
+        animate(self, "progress", 500, lambda t: self.progress.set(target * t))
 
     def set_controls_visible(self, visible):
         if visible:
@@ -204,6 +195,6 @@ class DimensionCard(ctk.CTkFrame):
             f"{dimension['weight_percentage']:.1f}% of score"
             if weight else "Not counted"
         )
-        self.weight_hint.configure(text=f"Default {self.default_weight:g}  ·  {share}")
+        self.weight_hint.configure(text=f"Default {self.default_weight:g}, {share}")
         if sync_slider:
             self.slider.set(weight)

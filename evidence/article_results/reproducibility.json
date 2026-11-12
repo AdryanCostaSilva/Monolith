@@ -1,0 +1,71 @@
+{
+  "created_utc": "2026-10-30T23:31:17.515933+00:00",
+  "python": "3.13.2",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "sklearn": "1.9.1",
+  "pandas": "3.1.0",
+  "numpy": "2.5.4",
+  "git_head": "d3cc8db11eec081de2d33e9dacb45ddda4d40e18",
+  "source_hashes": {
+    "src\\__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src\\aggregation\\__init__.py": "d91dfc9c83be01a28c8a86acaa13fafe80bdb685edc06b52d72263a805ba9226",
+    "src\\aggregation\\aggregator.py": "1db01daaeeac68863918a3da9f8849ed015a78d0a23817c401f1a4656cbe5a34",
+    "src\\config.py": "0b4c1714f3757d61137fa131b2912517834e4df30f2e2b78ad183baf3c24b390",
+    "src\\context.py": "85b444ddf32302d5082a676bd300e4dd82fc86eabe596568795191b2863cece7",
+    "src\\engine.py": "7cbe3d817148eeae8de43c41a47d30ed1299b55e41801bb5e09730be1108f02f",
+    "src\\evaluation\\__init__.py": "c7b8c443fad6168c92d62b5bffb7526be93cae0697565b1bae590f49f617f42e",
+    "src\\evaluation\\base.py": "a79fbe6bfd963c4397a2b8cab899c6bbe1063b458cbbb70c37400f693dfdeddd",
+    "src\\evaluation\\class_balance.py": "4151b5c8e5186b2794418c925205cf5bc6772428fa10ac3d2cbb555ccbaf0d2f",
+    "src\\evaluation\\completeness.py": "13ebed8efc10205004fa9a6eeb8c9bc47953da248fe261d9624cec5a9545b2b9",
+    "src\\evaluation\\consistency.py": "a445d3e0729ec4e79eca75c42160f78bda117bcb271aef48a795675f0f48d35a",
+    "src\\evaluation\\documentation.py": "58103c432bb0a59752716aed8b9bc6f8637ce912103835ba6dc34f9c876b0c49",
+    "src\\evaluation\\metadata.py": "fe8d16573a7c663a5a08256103650c7f6a4c296e3d040a4139fcedc8dfb36d59",
+    "src\\evaluation\\provenance.py": "94d03d7fa0d1a7eef488a7e736791562848e3006004232db305ba5099fb98cef",
+    "src\\evaluation\\quality.py": "63f7905048b91681d4a5b724eba0078ff3e9e2e408d490d6bac0ae013dc5e776",
+    "src\\loading\\__init__.py": "efd4bcce606676c3deca3ee79bc7443d69cbdd049e77dbf0afe8a41f9189f40d",
+    "src\\loading\\loader.py": "23d7b12a25bdf088dd251112dceb8237669653ba4c9e76455c50ea3e2449486c",
+    "src\\metadata.py": "a6cafc1d99d6c049897b18402cf3cfd4140f26e7b15f92310101439b037522c9",
+    "src\\preparation\\__init__.py": "caf368ff885e1afa376603783e81703b733d5a7a05fc06b2bb2e0c28dd178cb1",
+    "src\\preparation\\inspection.py": "5adc1cfd830dfb8d7fb75557e00ee76c254604ecd21eeb2b751e25213f615159",
+    "src\\preparation\\session.py": "000b951b494cccd53a2742eee4cdbadfd9e14c00adf26720c2fb3701a0c789bd",
+    "src\\preparation\\transforms.py": "ab93e4c125af5db87fc216746d9a21f1ef28507e78fb0c51ececb8cbab4a824c",
+    "src\\profiling\\__init__.py": "8e32bcf94bc75d0eefb826cec30b00310d464754ec7bf748a0d7a69d70595678",
+    "src\\profiling\\outliers.py": "f6f6e7174a6f4782b432a72be55d78e1b7086961b0c7d5e609a6880203fb3a32",
+    "src\\profiling\\profiler.py": "ebe9bb49ff2014bb5be8ce2b40ee53e2205fba5e203390b1e0c29bd519803b71",
+    "src\\profiling\\values.py": "280c40a6c5e36f161b868ba2d31a151b128399e8cecf8ec8dcc30605cd2c8e72",
+    "src\\profiling\\visualizations.py": "e215ee881ed16803b39b6a8d6a358df41813d71c60c873ed34496411164d2c56",
+    "src\\reporting\\__init__.py": "814c894edffef9f83272211232e298920e7623a175e8b991b873efeb7f06658b",
+    "src\\reporting\\charts.py": "c116a12c747e310e19b6e43098311acfaab91c78862e9c8d5a16b3d87bfc7932",
+    "src\\reporting\\dataset_plots.py": "9b57cd8c0306828a171e1a0aa1b3573af20619536b4b92215498ada93b3246c8",
+    "src\\reporting\\report_generator.py": "0a0c128e7dc9c2680b6aedf1076788cade054655db465e1cdca6479bd0b35a47",
+    "src\\ui\\__init__.py": "417f391f444242606a6504fff9d9071954469bb792938a0821fa6f458a767d9a",
+    "src\\ui\\dimension_card.py": "7b799e58aed37a5e5737ae46a5c37f2e6be3a3f397f7bb0b746a23d7fb40dc0e",
+    "src\\ui\\main_window.py": "2c0657b62d94a38924cfae3be198e6f9612bc548f71c28141dbe02b3e343b4b2",
+    "src\\ui\\preparation_charts.py": "3ac7b3c815bf76fbad533ae6a351d68ea0f349030b34eea83921b0a321d5e350",
+    "src\\ui\\preparation_page.py": "9737d1d77bb38146ea489dcc2fc4654f46df5022a6c339d1650d457033199c5f",
+    "src\\ui\\theme.py": "c8d707359661346f2d0ba2a515b75b2ad3ede4c9c32e14f9a31632bf6bb92426",
+    "src\\ui\\widgets.py": "867aa7e72a232a56a6c898558ac1a3a754602818252c683db8f40085a9e6ec85"
+  },
+  "churn_sha256": "877e60bd19e3980c1e90e15306e52e502b08640652420ea5c45c4e863cd39fd3",
+  "wine_sha256": "a5f9961298dc86deafae12b9ee88a283508cefa03cd1f719e9dfe581ec898777",
+  "split_seed": 20261030,
+  "splits": 10,
+  "test_fraction": 0.3,
+  "conditions": [
+    "minimum_manual",
+    "monolith",
+    "equivalent_manual"
+  ],
+  "model_parameters": {
+    "knn": {
+      "n_neighbors": 5
+    },
+    "random_forest": {
+      "n_estimators": 200,
+      "max_depth": 8,
+      "n_jobs": 1,
+      "random_state": "20261030 + split"
+    }
+  },
+  "note": "Current local work includes uncommitted preparation changes; hashes identify the actual measured code."
+}

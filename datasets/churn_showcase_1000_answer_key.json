@@ -1,0 +1,934 @@
+{
+  "synthetic": true,
+  "seed": 20261030,
+  "header_row": 1,
+  "rows": 1000,
+  "columns": [
+    "CustomerID",
+    "Age",
+    "MonthlySpend",
+    "TenureMonths",
+    "SupportTickets",
+    "Plan",
+    "Region",
+    "Contract",
+    "Churned"
+  ],
+  "target": "Churned",
+  "target_counts": {
+    "0": 800,
+    "1": 200
+  },
+  "duplicate_rows": 40,
+  "missing_cells": 200,
+  "duplicate_pairs": [
+    {
+      "keep_source_row": 66,
+      "remove_source_row": 154,
+      "customer_id": "CU00278"
+    },
+    {
+      "keep_source_row": 89,
+      "remove_source_row": 205,
+      "customer_id": "CU00566"
+    },
+    {
+      "keep_source_row": 19,
+      "remove_source_row": 207,
+      "customer_id": "CU00069"
+    },
+    {
+      "keep_source_row": 176,
+      "remove_source_row": 229,
+      "customer_id": "CU00384"
+    },
+    {
+      "keep_source_row": 96,
+      "remove_source_row": 234,
+      "customer_id": "CU00644"
+    },
+    {
+      "keep_source_row": 30,
+      "remove_source_row": 363,
+      "customer_id": "CU00001"
+    },
+    {
+      "keep_source_row": 310,
+      "remove_source_row": 387,
+      "customer_id": "CU00309"
+    },
+    {
+      "keep_source_row": 313,
+      "remove_source_row": 407,
+      "customer_id": "CU00004"
+    },
+    {
+      "keep_source_row": 163,
+      "remove_source_row": 416,
+      "customer_id": "CU00412"
+    },
+    {
+      "keep_source_row": 248,
+      "remove_source_row": 427,
+      "customer_id": "CU00946"
+    },
+    {
+      "keep_source_row": 239,
+      "remove_source_row": 451,
+      "customer_id": "CU00756"
+    },
+    {
+      "keep_source_row": 381,
+      "remove_source_row": 492,
+      "customer_id": "CU00939"
+    },
+    {
+      "keep_source_row": 167,
+      "remove_source_row": 534,
+      "customer_id": "CU00542"
+    },
+    {
+      "keep_source_row": 323,
+      "remove_source_row": 540,
+      "customer_id": "CU00705"
+    },
+    {
+      "keep_source_row": 59,
+      "remove_source_row": 545,
+      "customer_id": "CU00520"
+    },
+    {
+      "keep_source_row": 260,
+      "remove_source_row": 566,
+      "customer_id": "CU00819"
+    },
+    {
+      "keep_source_row": 460,
+      "remove_source_row": 570,
+      "customer_id": "CU00784"
+    },
+    {
+      "keep_source_row": 590,
+      "remove_source_row": 647,
+      "customer_id": "CU00094"
+    },
+    {
+      "keep_source_row": 619,
+      "remove_source_row": 684,
+      "customer_id": "CU00065"
+    },
+    {
+      "keep_source_row": 675,
+      "remove_source_row": 708,
+      "customer_id": "CU00181"
+    },
+    {
+      "keep_source_row": 664,
+      "remove_source_row": 737,
+      "customer_id": "CU00108"
+    },
+    {
+      "keep_source_row": 309,
+      "remove_source_row": 755,
+      "customer_id": "CU00764"
+    },
+    {
+      "keep_source_row": 774,
+      "remove_source_row": 800,
+      "customer_id": "CU00526"
+    },
+    {
+      "keep_source_row": 680,
+      "remove_source_row": 815,
+      "customer_id": "CU00429"
+    },
+    {
+      "keep_source_row": 32,
+      "remove_source_row": 817,
+      "customer_id": "CU00190"
+    },
+    {
+      "keep_source_row": 636,
+      "remove_source_row": 831,
+      "customer_id": "CU00741"
+    },
+    {
+      "keep_source_row": 365,
+      "remove_source_row": 838,
+      "customer_id": "CU00576"
+    },
+    {
+      "keep_source_row": 798,
+      "remove_source_row": 853,
+      "customer_id": "CU00371"
+    },
+    {
+      "keep_source_row": 521,
+      "remove_source_row": 896,
+      "customer_id": "CU00957"
+    },
+    {
+      "keep_source_row": 547,
+      "remove_source_row": 900,
+      "customer_id": "CU00695"
+    },
+    {
+      "keep_source_row": 537,
+      "remove_source_row": 904,
+      "customer_id": "CU00876"
+    },
+    {
+      "keep_source_row": 121,
+      "remove_source_row": 931,
+      "customer_id": "CU00009"
+    },
+    {
+      "keep_source_row": 357,
+      "remove_source_row": 943,
+      "customer_id": "CU00176"
+    },
+    {
+      "keep_source_row": 515,
+      "remove_source_row": 962,
+      "customer_id": "CU00290"
+    },
+    {
+      "keep_source_row": 605,
+      "remove_source_row": 965,
+      "customer_id": "CU00936"
+    },
+    {
+      "keep_source_row": 324,
+      "remove_source_row": 969,
+      "customer_id": "CU00129"
+    },
+    {
+      "keep_source_row": 589,
+      "remove_source_row": 987,
+      "customer_id": "CU00910"
+    },
+    {
+      "keep_source_row": 122,
+      "remove_source_row": 989,
+      "customer_id": "CU00712"
+    },
+    {
+      "keep_source_row": 513,
+      "remove_source_row": 999,
+      "customer_id": "CU00113"
+    },
+    {
+      "keep_source_row": 650,
+      "remove_source_row": 1000,
+      "customer_id": "CU00212"
+    }
+  ],
+  "missing_source_rows": {
+    "Age": [
+      14,
+      38,
+      58,
+      77,
+      119,
+      140,
+      190,
+      209,
+      226,
+      254,
+      430,
+      447,
+      479,
+      490,
+      508,
+      553,
+      580,
+      582,
+      591,
+      600,
+      611,
+      657,
+      659,
+      679,
+      688,
+      727,
+      742,
+      807,
+      821,
+      828,
+      903,
+      942,
+      949,
+      963,
+      977
+    ],
+    "MonthlySpend": [
+      46,
+      108,
+      132,
+      170,
+      183,
+      195,
+      206,
+      211,
+      224,
+      231,
+      251,
+      268,
+      290,
+      320,
+      350,
+      376,
+      391,
+      410,
+      503,
+      519,
+      546,
+      551,
+      555,
+      597,
+      616,
+      701,
+      713,
+      729,
+      765,
+      768,
+      794,
+      845,
+      856,
+      893,
+      897,
+      929,
+      936,
+      939,
+      941,
+      990
+    ],
+    "TenureMonths": [
+      9,
+      36,
+      54,
+      82,
+      85,
+      102,
+      155,
+      179,
+      191,
+      196,
+      283,
+      289,
+      300,
+      302,
+      331,
+      371,
+      376,
+      506,
+      565,
+      571,
+      602,
+      609,
+      631,
+      665,
+      691,
+      693,
+      803,
+      813,
+      895,
+      914
+    ],
+    "SupportTickets": [
+      4,
+      27,
+      67,
+      238,
+      292,
+      342,
+      344,
+      370,
+      458,
+      464,
+      527,
+      539,
+      599,
+      655,
+      668,
+      758,
+      770,
+      810,
+      829,
+      912
+    ],
+    "Plan": [
+      26,
+      42,
+      68,
+      83,
+      92,
+      157,
+      164,
+      168,
+      181,
+      211,
+      258,
+      327,
+      397,
+      418,
+      479,
+      490,
+      496,
+      530,
+      574,
+      618,
+      660,
+      690,
+      735,
+      753,
+      754,
+      756,
+      793,
+      803,
+      819,
+      843,
+      849,
+      874,
+      880,
+      952,
+      990
+    ],
+    "Region": [
+      40,
+      58,
+      67,
+      87,
+      102,
+      115,
+      150,
+      161,
+      177,
+      184,
+      256,
+      320,
+      391,
+      414,
+      465,
+      517,
+      532,
+      572,
+      618,
+      670,
+      722,
+      785,
+      805,
+      905,
+      924
+    ],
+    "Contract": [
+      40,
+      64,
+      71,
+      94,
+      280,
+      562,
+      594,
+      600,
+      625,
+      639,
+      652,
+      876,
+      883,
+      948,
+      978
+    ]
+  },
+  "text_variant_rows": {
+    "Plan": [
+      {
+        "source_row": 43,
+        "customer_id": "CU00952",
+        "value": "Standard "
+      },
+      {
+        "source_row": 54,
+        "customer_id": "CU00729",
+        "value": "Premium "
+      },
+      {
+        "source_row": 86,
+        "customer_id": "CU00370",
+        "value": "PREMIUM"
+      },
+      {
+        "source_row": 91,
+        "customer_id": "CU00849",
+        "value": "Standard "
+      },
+      {
+        "source_row": 130,
+        "customer_id": "CU00935",
+        "value": "PREMIUM"
+      },
+      {
+        "source_row": 188,
+        "customer_id": "CU00411",
+        "value": "Basic "
+      },
+      {
+        "source_row": 209,
+        "customer_id": "CU00075",
+        "value": " standard "
+      },
+      {
+        "source_row": 219,
+        "customer_id": "CU00556",
+        "value": "BASIC"
+      },
+      {
+        "source_row": 263,
+        "customer_id": "CU00157",
+        "value": "Standard "
+      },
+      {
+        "source_row": 274,
+        "customer_id": "CU00832",
+        "value": " premium "
+      },
+      {
+        "source_row": 275,
+        "customer_id": "CU00269",
+        "value": "Premium "
+      },
+      {
+        "source_row": 277,
+        "customer_id": "CU00061",
+        "value": " premium "
+      },
+      {
+        "source_row": 288,
+        "customer_id": "CU00867",
+        "value": "Standard "
+      },
+      {
+        "source_row": 301,
+        "customer_id": "CU00467",
+        "value": " premium "
+      },
+      {
+        "source_row": 340,
+        "customer_id": "CU00892",
+        "value": " premium "
+      },
+      {
+        "source_row": 358,
+        "customer_id": "CU00098",
+        "value": " premium "
+      },
+      {
+        "source_row": 395,
+        "customer_id": "CU00385",
+        "value": " basic "
+      },
+      {
+        "source_row": 409,
+        "customer_id": "CU00603",
+        "value": "Premium "
+      },
+      {
+        "source_row": 412,
+        "customer_id": "CU00650",
+        "value": "STANDARD"
+      },
+      {
+        "source_row": 424,
+        "customer_id": "CU00860",
+        "value": "BASIC"
+      },
+      {
+        "source_row": 429,
+        "customer_id": "CU00844",
+        "value": "PREMIUM"
+      },
+      {
+        "source_row": 435,
+        "customer_id": "CU00771",
+        "value": " basic "
+      },
+      {
+        "source_row": 437,
+        "customer_id": "CU00024",
+        "value": "Standard "
+      },
+      {
+        "source_row": 452,
+        "customer_id": "CU00751",
+        "value": " basic "
+      },
+      {
+        "source_row": 454,
+        "customer_id": "CU00818",
+        "value": "PREMIUM"
+      },
+      {
+        "source_row": 572,
+        "customer_id": "CU00284",
+        "value": "PREMIUM"
+      },
+      {
+        "source_row": 597,
+        "customer_id": "CU00237",
+        "value": " basic "
+      },
+      {
+        "source_row": 676,
+        "customer_id": "CU00317",
+        "value": " standard "
+      },
+      {
+        "source_row": 694,
+        "customer_id": "CU00916",
+        "value": "BASIC"
+      },
+      {
+        "source_row": 714,
+        "customer_id": "CU00690",
+        "value": "Premium "
+      },
+      {
+        "source_row": 801,
+        "customer_id": "CU00522",
+        "value": "BASIC"
+      },
+      {
+        "source_row": 829,
+        "customer_id": "CU00209",
+        "value": "Standard "
+      },
+      {
+        "source_row": 858,
+        "customer_id": "CU00257",
+        "value": "Premium "
+      },
+      {
+        "source_row": 915,
+        "customer_id": "CU00169",
+        "value": "BASIC"
+      },
+      {
+        "source_row": 917,
+        "customer_id": "CU00574",
+        "value": " standard "
+      },
+      {
+        "source_row": 949,
+        "customer_id": "CU00633",
+        "value": "BASIC"
+      }
+    ],
+    "Region": [
+      {
+        "source_row": 17,
+        "customer_id": "CU00392",
+        "value": "West "
+      },
+      {
+        "source_row": 18,
+        "customer_id": "CU00775",
+        "value": "SOUTH"
+      },
+      {
+        "source_row": 65,
+        "customer_id": "CU00286",
+        "value": " north "
+      },
+      {
+        "source_row": 99,
+        "customer_id": "CU00868",
+        "value": "NORTH"
+      },
+      {
+        "source_row": 119,
+        "customer_id": "CU00279",
+        "value": " north "
+      },
+      {
+        "source_row": 211,
+        "customer_id": "CU00812",
+        "value": "West "
+      },
+      {
+        "source_row": 222,
+        "customer_id": "CU00909",
+        "value": "North "
+      },
+      {
+        "source_row": 241,
+        "customer_id": "CU00158",
+        "value": "NORTH"
+      },
+      {
+        "source_row": 243,
+        "customer_id": "CU00722",
+        "value": "EAST"
+      },
+      {
+        "source_row": 277,
+        "customer_id": "CU00061",
+        "value": " west "
+      },
+      {
+        "source_row": 284,
+        "customer_id": "CU00473",
+        "value": "EAST"
+      },
+      {
+        "source_row": 322,
+        "customer_id": "CU00389",
+        "value": "East "
+      },
+      {
+        "source_row": 369,
+        "customer_id": "CU00638",
+        "value": "NORTH"
+      },
+      {
+        "source_row": 375,
+        "customer_id": "CU00857",
+        "value": " west "
+      },
+      {
+        "source_row": 394,
+        "customer_id": "CU00728",
+        "value": "South "
+      },
+      {
+        "source_row": 409,
+        "customer_id": "CU00603",
+        "value": " north "
+      },
+      {
+        "source_row": 473,
+        "customer_id": "CU00397",
+        "value": "NORTH"
+      },
+      {
+        "source_row": 512,
+        "customer_id": "CU00166",
+        "value": " north "
+      },
+      {
+        "source_row": 530,
+        "customer_id": "CU00352",
+        "value": "North "
+      },
+      {
+        "source_row": 553,
+        "customer_id": "CU00234",
+        "value": " north "
+      },
+      {
+        "source_row": 557,
+        "customer_id": "CU00362",
+        "value": "East "
+      },
+      {
+        "source_row": 561,
+        "customer_id": "CU00456",
+        "value": " north "
+      },
+      {
+        "source_row": 623,
+        "customer_id": "CU00183",
+        "value": "East "
+      },
+      {
+        "source_row": 682,
+        "customer_id": "CU00348",
+        "value": "WEST"
+      },
+      {
+        "source_row": 724,
+        "customer_id": "CU00607",
+        "value": " north "
+      },
+      {
+        "source_row": 768,
+        "customer_id": "CU00571",
+        "value": "East "
+      },
+      {
+        "source_row": 783,
+        "customer_id": "CU00005",
+        "value": "SOUTH"
+      },
+      {
+        "source_row": 856,
+        "customer_id": "CU00917",
+        "value": "NORTH"
+      },
+      {
+        "source_row": 874,
+        "customer_id": "CU00801",
+        "value": " east "
+      },
+      {
+        "source_row": 919,
+        "customer_id": "CU00677",
+        "value": "East "
+      },
+      {
+        "source_row": 920,
+        "customer_id": "CU00404",
+        "value": " east "
+      },
+      {
+        "source_row": 980,
+        "customer_id": "CU00295",
+        "value": "SOUTH"
+      }
+    ]
+  },
+  "monthly_spend_outliers": [
+    {
+      "source_row": 44,
+      "customer_id": "CU00549",
+      "injected_value": 1342.76,
+      "simulated_original_value": 95.58
+    },
+    {
+      "source_row": 53,
+      "customer_id": "CU00203",
+      "injected_value": 1141.52,
+      "simulated_original_value": 72.69
+    },
+    {
+      "source_row": 77,
+      "customer_id": "CU00026",
+      "injected_value": 1435.61,
+      "simulated_original_value": 82.81
+    },
+    {
+      "source_row": 82,
+      "customer_id": "CU00300",
+      "injected_value": 1442.36,
+      "simulated_original_value": 95.57
+    },
+    {
+      "source_row": 119,
+      "customer_id": "CU00279",
+      "injected_value": 1197.74,
+      "simulated_original_value": 30.99
+    },
+    {
+      "source_row": 126,
+      "customer_id": "CU00757",
+      "injected_value": 1111.11,
+      "simulated_original_value": 109.89
+    },
+    {
+      "source_row": 160,
+      "customer_id": "CU00744",
+      "injected_value": 1168.49,
+      "simulated_original_value": 52.67
+    },
+    {
+      "source_row": 202,
+      "customer_id": "CU00375",
+      "injected_value": 854.25,
+      "simulated_original_value": 81.54
+    },
+    {
+      "source_row": 225,
+      "customer_id": "CU00032",
+      "injected_value": 1025.7,
+      "simulated_original_value": 68.43
+    },
+    {
+      "source_row": 273,
+      "customer_id": "CU00406",
+      "injected_value": 731.88,
+      "simulated_original_value": 83.66
+    },
+    {
+      "source_row": 335,
+      "customer_id": "CU00115",
+      "injected_value": 694.99,
+      "simulated_original_value": 77.49
+    },
+    {
+      "source_row": 423,
+      "customer_id": "CU00493",
+      "injected_value": 1527.19,
+      "simulated_original_value": 100.52
+    },
+    {
+      "source_row": 456,
+      "customer_id": "CU00733",
+      "injected_value": 1063.58,
+      "simulated_original_value": 44.97
+    },
+    {
+      "source_row": 487,
+      "customer_id": "CU00418",
+      "injected_value": 736.4,
+      "simulated_original_value": 102.52
+    },
+    {
+      "source_row": 535,
+      "customer_id": "CU00255",
+      "injected_value": 1423.76,
+      "simulated_original_value": 56.62
+    },
+    {
+      "source_row": 665,
+      "customer_id": "CU00622",
+      "injected_value": 1030.32,
+      "simulated_original_value": 49.95
+    },
+    {
+      "source_row": 696,
+      "customer_id": "CU00559",
+      "injected_value": 1293.09,
+      "simulated_original_value": 96.52
+    },
+    {
+      "source_row": 725,
+      "customer_id": "CU00960",
+      "injected_value": 814.32,
+      "simulated_original_value": 107.46
+    },
+    {
+      "source_row": 738,
+      "customer_id": "CU00345",
+      "injected_value": 1462.55,
+      "simulated_original_value": 103.79
+    },
+    {
+      "source_row": 776,
+      "customer_id": "CU00488",
+      "injected_value": 818.12,
+      "simulated_original_value": 41.1
+    },
+    {
+      "source_row": 796,
+      "customer_id": "CU00283",
+      "injected_value": 865.45,
+      "simulated_original_value": 98.67
+    },
+    {
+      "source_row": 855,
+      "customer_id": "CU00785",
+      "injected_value": 1134,
+      "simulated_original_value": 52.64
+    },
+    {
+      "source_row": 921,
+      "customer_id": "CU00192",
+      "injected_value": 1006.28,
+      "simulated_original_value": 44.58
+    },
+    {
+      "source_row": 949,
+      "customer_id": "CU00633",
+      "injected_value": 1560,
+      "simulated_original_value": 38.96
+    }
+  ]
+}

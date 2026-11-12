@@ -1,0 +1,2289 @@
+{
+  "dataset_info": {
+    "file": "churn_showcase_1000.csv",
+    "format": "csv",
+    "encoding": "utf-8-sig",
+    "delimiter": ",",
+    "rows": 1000,
+    "columns": 9,
+    "sha256": "877e60bd19e3980c1e90e15306e52e502b08640652420ea5c45c4e863cd39fd3",
+    "metadata_file": "churn_showcase_1000_metadata.json",
+    "metadata_warnings": []
+  },
+  "context": {
+    "project_goal": "Classificar cancelamento sintético; avaliar preparação",
+    "task_type": "classification",
+    "target_column": "Churned",
+    "important_columns": [
+      "Age",
+      "MonthlySpend",
+      "TenureMonths",
+      "SupportTickets",
+      "Plan",
+      "Region",
+      "Contract"
+    ],
+    "notes": "",
+    "documentation": {
+      "variable_descriptions": false,
+      "target_definition": false,
+      "data_collection": false,
+      "collection_period": false,
+      "units_and_categories": false,
+      "known_limitations": false
+    },
+    "provenance": {
+      "origin": false,
+      "collector": false,
+      "generation_period": false,
+      "transformations": false,
+      "version": false
+    }
+  },
+  "comparison": {
+    "original": {
+      "score": 90.98,
+      "classification": "Ready",
+      "weight_source": "study_defaults",
+      "dimensions": [
+        {
+          "dimension": "Completeness",
+          "applicable": true,
+          "score": 94.08,
+          "indicators": [
+            {
+              "name": "% filled cells",
+              "value": 97.78,
+              "weight": 1
+            },
+            {
+              "name": "% columns with less than 20% missing",
+              "value": 100.0,
+              "weight": 1
+            },
+            {
+              "name": "% complete rows",
+              "value": 81.4,
+              "weight": 1
+            },
+            {
+              "name": "% filled in important columns",
+              "value": 97.14,
+              "weight": 1
+            }
+          ],
+          "problems": [
+            "Column 'Age' has 3.5% missing values",
+            "Column 'MonthlySpend' has 4.0% missing values",
+            "Column 'TenureMonths' has 3.0% missing values",
+            "Column 'SupportTickets' has 2.0% missing values",
+            "Column 'Plan' has 3.5% missing values",
+            "Column 'Region' has 2.5% missing values",
+            "Column 'Contract' has 1.5% missing values"
+          ],
+          "recommendations": [
+            "Remove or impute the missing values in column 'Age'",
+            "Remove or impute the missing values in column 'MonthlySpend'",
+            "Remove or impute the missing values in column 'TenureMonths'",
+            "Remove or impute the missing values in column 'SupportTickets'",
+            "Remove or impute the missing values in column 'Plan'",
+            "Remove or impute the missing values in column 'Region'",
+            "Remove or impute the missing values in column 'Contract'"
+          ],
+          "weight": 7.8,
+          "weight_percentage": 24.15
+        },
+        {
+          "dimension": "Consistency",
+          "applicable": true,
+          "score": 82.0,
+          "indicators": [
+            {
+              "name": "% non-duplicate rows",
+              "value": 96.0,
+              "weight": 1
+            },
+            {
+              "name": "% columns with consistent types",
+              "value": 100.0,
+              "weight": 1
+            },
+            {
+              "name": "% categorical columns without text variants",
+              "value": 50.0,
+              "weight": 1
+            }
+          ],
+          "problems": [
+            "Dataset has 40 duplicate row(s)",
+            "Column 'Plan' has case or whitespace variants",
+            "Column 'Region' has case or whitespace variants"
+          ],
+          "recommendations": [
+            "Review and remove duplicate rows",
+            "Standardize the text values in column 'Plan'",
+            "Standardize the text values in column 'Region'"
+          ],
+          "weight": 2.1,
+          "weight_percentage": 6.5
+        },
+        {
+          "dimension": "Class Balance",
+          "applicable": true,
+          "score": 25.0,
+          "indicators": [
+            {
+              "name": "Minority-to-majority class ratio",
+              "value": 25.0,
+              "weight": 1
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "class_distribution": {
+            "classes": [
+              {
+                "label": "0",
+                "count": 800
+              },
+              {
+                "label": "1",
+                "count": 200
+              }
+            ],
+            "other_count": 0,
+            "missing_count": 0
+          },
+          "weight": 2.3,
+          "weight_percentage": 7.12
+        },
+        {
+          "dimension": "Documentation",
+          "applicable": true,
+          "score": 100.0,
+          "indicators": [
+            {
+              "name": "Variable descriptions",
+              "value": 100.0,
+              "weight": 1,
+              "item": "variable_descriptions",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "columns",
+              "evidence": {
+                "CustomerID": {
+                  "description": "Synthetic customer identifier. Duplicate records repeat this identifier. Exclude from normalization.",
+                  "unit": "Not applicable (identifier)"
+                },
+                "Age": {
+                  "description": "Simulated customer age.",
+                  "unit": "years"
+                },
+                "MonthlySpend": {
+                  "description": "Simulated monthly subscription spend. Includes deliberately injected outliers.",
+                  "unit": "currency units per month"
+                },
+                "TenureMonths": {
+                  "description": "Simulated length of subscription.",
+                  "unit": "months"
+                },
+                "SupportTickets": {
+                  "description": "Simulated support requests during the observation period.",
+                  "unit": "requests"
+                },
+                "Plan": {
+                  "description": "Subscription tier, with deliberate case/whitespace variants.",
+                  "categories": {
+                    "basic": "Basic tier",
+                    "standard": "Standard tier",
+                    "premium": "Premium tier"
+                  }
+                },
+                "Region": {
+                  "description": "Fictional customer region, with deliberate text variants.",
+                  "categories": {
+                    "north": "North",
+                    "south": "South",
+                    "east": "East",
+                    "west": "West"
+                  }
+                },
+                "Contract": {
+                  "description": "Subscription billing contract.",
+                  "categories": {
+                    "Monthly": "Monthly contract",
+                    "Annual": "Annual contract"
+                  }
+                },
+                "Churned": {
+                  "description": "Simulated classification target.",
+                  "categories": {
+                    "0": "Retained customer",
+                    "1": "Cancelled subscription"
+                  }
+                }
+              },
+              "detail": "9/9 dataset columns covered."
+            },
+            {
+              "name": "Target definition",
+              "value": 100.0,
+              "weight": 1,
+              "item": "target_definition",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.target_definition",
+              "evidence": {
+                "column": "Churned",
+                "description": "Predict simulated customer cancellation: 1 cancelled, 0 retained."
+              },
+              "detail": "Define the selected target column and its meaning."
+            },
+            {
+              "name": "Data collection method",
+              "value": 100.0,
+              "weight": 1,
+              "item": "data_collection",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.data_collection",
+              "evidence": "Generated locally from a deterministic simulation. No real customer records were collected.",
+              "detail": "Supply a non-empty text value."
+            },
+            {
+              "name": "Collection period",
+              "value": 100.0,
+              "weight": 1,
+              "item": "collection_period",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.collection_period",
+              "evidence": {
+                "start": "2026-10-30",
+                "end": "2026-10-30"
+              },
+              "detail": "Supply start/end ISO dates (YYYY-MM-DD), with start <= end."
+            },
+            {
+              "name": "Units and categories",
+              "value": 100.0,
+              "weight": 1,
+              "item": "units_and_categories",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "columns",
+              "evidence": {
+                "CustomerID": {
+                  "description": "Synthetic customer identifier. Duplicate records repeat this identifier. Exclude from normalization.",
+                  "unit": "Not applicable (identifier)"
+                },
+                "Age": {
+                  "description": "Simulated customer age.",
+                  "unit": "years"
+                },
+                "MonthlySpend": {
+                  "description": "Simulated monthly subscription spend. Includes deliberately injected outliers.",
+                  "unit": "currency units per month"
+                },
+                "TenureMonths": {
+                  "description": "Simulated length of subscription.",
+                  "unit": "months"
+                },
+                "SupportTickets": {
+                  "description": "Simulated support requests during the observation period.",
+                  "unit": "requests"
+                },
+                "Plan": {
+                  "description": "Subscription tier, with deliberate case/whitespace variants.",
+                  "categories": {
+                    "basic": "Basic tier",
+                    "standard": "Standard tier",
+                    "premium": "Premium tier"
+                  }
+                },
+                "Region": {
+                  "description": "Fictional customer region, with deliberate text variants.",
+                  "categories": {
+                    "north": "North",
+                    "south": "South",
+                    "east": "East",
+                    "west": "West"
+                  }
+                },
+                "Contract": {
+                  "description": "Subscription billing contract.",
+                  "categories": {
+                    "Monthly": "Monthly contract",
+                    "Annual": "Annual contract"
+                  }
+                },
+                "Churned": {
+                  "description": "Simulated classification target.",
+                  "categories": {
+                    "0": "Retained customer",
+                    "1": "Cancelled subscription"
+                  }
+                }
+              },
+              "detail": "9/9 dataset columns covered."
+            },
+            {
+              "name": "Known limitations",
+              "value": 100.0,
+              "weight": 1,
+              "item": "known_limitations",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.known_limitations",
+              "evidence": [
+                "Synthetic classroom dataset, not observations of real customers.",
+                "Contains deliberate issues described in the answer key.",
+                "80/20 class imbalance is included for inspection; the app does not currently rebalance classes.",
+                "This file demonstrates preparation, not validated predictive performance."
+              ],
+              "detail": "Supply a non-empty list of limitations; explicitly state if none are known."
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "assessment": {
+            "method": "checkbox_then_metadata",
+            "source": "churn_showcase_1000_metadata.json",
+            "dataset_sha256": "877e60bd19e3980c1e90e15306e52e502b08640652420ea5c45c4e863cd39fd3",
+            "warnings": [],
+            "note": "Checked items receive full credit as user confirmations. Unchecked items use uploaded metadata coverage and structure. Statements are not independently verified."
+          },
+          "excluded_indicators": [],
+          "weight": 2.5,
+          "weight_percentage": 7.74
+        },
+        {
+          "dimension": "Provenance",
+          "applicable": true,
+          "score": 100.0,
+          "indicators": [
+            {
+              "name": "Data origin",
+              "value": 100.0,
+              "weight": 1,
+              "item": "origin",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.origin",
+              "evidence": "Monolith synthetic preparation showcase",
+              "detail": "Supply a non-empty text value."
+            },
+            {
+              "name": "Data collector",
+              "value": 100.0,
+              "weight": 1,
+              "item": "collector",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.collector",
+              "evidence": "Deterministic local generator",
+              "detail": "Supply a non-empty text value."
+            },
+            {
+              "name": "Generation period",
+              "value": 100.0,
+              "weight": 1,
+              "item": "generation_period",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.generation_period",
+              "evidence": {
+                "start": "2026-10-30",
+                "end": "2026-10-30"
+              },
+              "detail": "Supply start/end ISO dates (YYYY-MM-DD), with start <= end."
+            },
+            {
+              "name": "Applied transformations",
+              "value": 100.0,
+              "weight": 1,
+              "item": "transformations",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.transformations",
+              "evidence": [
+                "Seed 20261030: generated 960 unique fictional customers and simulated labels.",
+                "Injected 200 missing cells, 24 high-spend outliers, 36 Plan variants, and 32 Region variants.",
+                "Added 40 exact duplicate rows and shuffled all 1000 records. No cleaning or scaling applied."
+              ],
+              "detail": "List the transformations; explicitly state if the data is raw."
+            },
+            {
+              "name": "Dataset version",
+              "value": 100.0,
+              "weight": 1,
+              "item": "version",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.version",
+              "evidence": "1.0",
+              "detail": "Supply a non-empty text value."
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "assessment": {
+            "method": "checkbox_then_metadata",
+            "source": "churn_showcase_1000_metadata.json",
+            "dataset_sha256": "877e60bd19e3980c1e90e15306e52e502b08640652420ea5c45c4e863cd39fd3",
+            "warnings": [],
+            "note": "Checked items receive full credit as user confirmations. Unchecked items use uploaded metadata coverage and structure. Statements are not independently verified."
+          },
+          "excluded_indicators": [],
+          "weight": 2.5,
+          "weight_percentage": 7.74
+        },
+        {
+          "dimension": "Data Quality",
+          "applicable": true,
+          "score": 97.7,
+          "indicators": [
+            {
+              "name": "% numeric values without outliers",
+              "value": 95.41,
+              "weight": 1
+            },
+            {
+              "name": "% non-constant columns",
+              "value": 100.0,
+              "weight": 1
+            }
+          ],
+          "problems": [
+            "Column 'MonthlySpend' has 24 outlier(s) under the IQR rule",
+            "Column 'Churned' has 200 outlier(s) under the IQR rule"
+          ],
+          "recommendations": [
+            "Review the outliers in column 'MonthlySpend' and treat them when appropriate",
+            "Review the outliers in column 'Churned' and treat them when appropriate"
+          ],
+          "weight": 15.1,
+          "weight_percentage": 46.75
+        }
+      ]
+    },
+    "prepared": {
+      "score": 93.72,
+      "classification": "Ready",
+      "weight_source": "study_defaults",
+      "dimensions": [
+        {
+          "dimension": "Completeness",
+          "applicable": true,
+          "score": 100.0,
+          "indicators": [
+            {
+              "name": "% filled cells",
+              "value": 100.0,
+              "weight": 1
+            },
+            {
+              "name": "% columns with less than 20% missing",
+              "value": 100.0,
+              "weight": 1
+            },
+            {
+              "name": "% complete rows",
+              "value": 100.0,
+              "weight": 1
+            },
+            {
+              "name": "% filled in important columns",
+              "value": 100.0,
+              "weight": 1
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "weight": 7.8,
+          "weight_percentage": 24.15
+        },
+        {
+          "dimension": "Consistency",
+          "applicable": true,
+          "score": 100.0,
+          "indicators": [
+            {
+              "name": "% non-duplicate rows",
+              "value": 100.0,
+              "weight": 1
+            },
+            {
+              "name": "% columns with consistent types",
+              "value": 100.0,
+              "weight": 1
+            },
+            {
+              "name": "% categorical columns without text variants",
+              "value": 100.0,
+              "weight": 1
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "weight": 2.1,
+          "weight_percentage": 6.5
+        },
+        {
+          "dimension": "Class Balance",
+          "applicable": true,
+          "score": 25.0,
+          "indicators": [
+            {
+              "name": "Minority-to-majority class ratio",
+              "value": 25.0,
+              "weight": 1
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "class_distribution": {
+            "classes": [
+              {
+                "label": "0",
+                "count": 768
+              },
+              {
+                "label": "1",
+                "count": 192
+              }
+            ],
+            "other_count": 0,
+            "missing_count": 0
+          },
+          "weight": 2.3,
+          "weight_percentage": 7.12
+        },
+        {
+          "dimension": "Documentation",
+          "applicable": true,
+          "score": 100.0,
+          "indicators": [
+            {
+              "name": "Variable descriptions",
+              "value": 100.0,
+              "weight": 1,
+              "item": "variable_descriptions",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "columns",
+              "evidence": {
+                "CustomerID": {
+                  "description": "Synthetic customer identifier. Duplicate records repeat this identifier. Exclude from normalization.",
+                  "unit": "Not applicable (identifier)"
+                },
+                "Age": {
+                  "description": "Simulated customer age.",
+                  "unit": "years"
+                },
+                "MonthlySpend": {
+                  "description": "Simulated monthly subscription spend. Includes deliberately injected outliers.",
+                  "unit": "currency units per month"
+                },
+                "TenureMonths": {
+                  "description": "Simulated length of subscription.",
+                  "unit": "months"
+                },
+                "SupportTickets": {
+                  "description": "Simulated support requests during the observation period.",
+                  "unit": "requests"
+                },
+                "Plan": {
+                  "description": "Subscription tier, with deliberate case/whitespace variants.",
+                  "categories": {
+                    "basic": "Basic tier",
+                    "standard": "Standard tier",
+                    "premium": "Premium tier"
+                  }
+                },
+                "Region": {
+                  "description": "Fictional customer region, with deliberate text variants.",
+                  "categories": {
+                    "north": "North",
+                    "south": "South",
+                    "east": "East",
+                    "west": "West"
+                  }
+                },
+                "Contract": {
+                  "description": "Subscription billing contract.",
+                  "categories": {
+                    "Monthly": "Monthly contract",
+                    "Annual": "Annual contract"
+                  }
+                },
+                "Churned": {
+                  "description": "Simulated classification target.",
+                  "categories": {
+                    "0": "Retained customer",
+                    "1": "Cancelled subscription"
+                  }
+                }
+              },
+              "detail": "9/9 dataset columns covered."
+            },
+            {
+              "name": "Target definition",
+              "value": 100.0,
+              "weight": 1,
+              "item": "target_definition",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.target_definition",
+              "evidence": {
+                "column": "Churned",
+                "description": "Predict simulated customer cancellation: 1 cancelled, 0 retained."
+              },
+              "detail": "Define the selected target column and its meaning."
+            },
+            {
+              "name": "Data collection method",
+              "value": 100.0,
+              "weight": 1,
+              "item": "data_collection",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.data_collection",
+              "evidence": "Generated locally from a deterministic simulation. No real customer records were collected.",
+              "detail": "Supply a non-empty text value."
+            },
+            {
+              "name": "Collection period",
+              "value": 100.0,
+              "weight": 1,
+              "item": "collection_period",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.collection_period",
+              "evidence": {
+                "start": "2026-10-30",
+                "end": "2026-10-30"
+              },
+              "detail": "Supply start/end ISO dates (YYYY-MM-DD), with start <= end."
+            },
+            {
+              "name": "Units and categories",
+              "value": 100.0,
+              "weight": 1,
+              "item": "units_and_categories",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "columns",
+              "evidence": {
+                "CustomerID": {
+                  "description": "Synthetic customer identifier. Duplicate records repeat this identifier. Exclude from normalization.",
+                  "unit": "Not applicable (identifier)"
+                },
+                "Age": {
+                  "description": "Simulated customer age.",
+                  "unit": "years"
+                },
+                "MonthlySpend": {
+                  "description": "Simulated monthly subscription spend. Includes deliberately injected outliers.",
+                  "unit": "currency units per month"
+                },
+                "TenureMonths": {
+                  "description": "Simulated length of subscription.",
+                  "unit": "months"
+                },
+                "SupportTickets": {
+                  "description": "Simulated support requests during the observation period.",
+                  "unit": "requests"
+                },
+                "Plan": {
+                  "description": "Subscription tier, with deliberate case/whitespace variants.",
+                  "categories": {
+                    "basic": "Basic tier",
+                    "standard": "Standard tier",
+                    "premium": "Premium tier"
+                  }
+                },
+                "Region": {
+                  "description": "Fictional customer region, with deliberate text variants.",
+                  "categories": {
+                    "north": "North",
+                    "south": "South",
+                    "east": "East",
+                    "west": "West"
+                  }
+                },
+                "Contract": {
+                  "description": "Subscription billing contract.",
+                  "categories": {
+                    "Monthly": "Monthly contract",
+                    "Annual": "Annual contract"
+                  }
+                },
+                "Churned": {
+                  "description": "Simulated classification target.",
+                  "categories": {
+                    "0": "Retained customer",
+                    "1": "Cancelled subscription"
+                  }
+                }
+              },
+              "detail": "9/9 dataset columns covered."
+            },
+            {
+              "name": "Known limitations",
+              "value": 100.0,
+              "weight": 1,
+              "item": "known_limitations",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.known_limitations",
+              "evidence": [
+                "Synthetic classroom dataset, not observations of real customers.",
+                "Contains deliberate issues described in the answer key.",
+                "80/20 class imbalance is included for inspection; the app does not currently rebalance classes.",
+                "This file demonstrates preparation, not validated predictive performance."
+              ],
+              "detail": "Supply a non-empty list of limitations; explicitly state if none are known."
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "assessment": {
+            "method": "checkbox_then_metadata",
+            "source": "churn_showcase_1000_metadata.json",
+            "dataset_sha256": "877e60bd19e3980c1e90e15306e52e502b08640652420ea5c45c4e863cd39fd3",
+            "warnings": [],
+            "note": "Checked items receive full credit as user confirmations. Unchecked items use uploaded metadata coverage and structure. Statements are not independently verified."
+          },
+          "excluded_indicators": [],
+          "weight": 2.5,
+          "weight_percentage": 7.74
+        },
+        {
+          "dimension": "Provenance",
+          "applicable": true,
+          "score": 100.0,
+          "indicators": [
+            {
+              "name": "Data origin",
+              "value": 100.0,
+              "weight": 1,
+              "item": "origin",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.origin",
+              "evidence": "Monolith synthetic preparation showcase",
+              "detail": "Supply a non-empty text value."
+            },
+            {
+              "name": "Data collector",
+              "value": 100.0,
+              "weight": 1,
+              "item": "collector",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.collector",
+              "evidence": "Deterministic local generator",
+              "detail": "Supply a non-empty text value."
+            },
+            {
+              "name": "Generation period",
+              "value": 100.0,
+              "weight": 1,
+              "item": "generation_period",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.generation_period",
+              "evidence": {
+                "start": "2026-10-30",
+                "end": "2026-10-30"
+              },
+              "detail": "Supply start/end ISO dates (YYYY-MM-DD), with start <= end."
+            },
+            {
+              "name": "Applied transformations",
+              "value": 100.0,
+              "weight": 1,
+              "item": "transformations",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.transformations",
+              "evidence": [
+                "Seed 20261030: generated 960 unique fictional customers and simulated labels.",
+                "Injected 200 missing cells, 24 high-spend outliers, 36 Plan variants, and 32 Region variants.",
+                "Added 40 exact duplicate rows and shuffled all 1000 records. No cleaning or scaling applied."
+              ],
+              "detail": "List the transformations; explicitly state if the data is raw."
+            },
+            {
+              "name": "Dataset version",
+              "value": 100.0,
+              "weight": 1,
+              "item": "version",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.version",
+              "evidence": "1.0",
+              "detail": "Supply a non-empty text value."
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "assessment": {
+            "method": "checkbox_then_metadata",
+            "source": "churn_showcase_1000_metadata.json",
+            "dataset_sha256": "877e60bd19e3980c1e90e15306e52e502b08640652420ea5c45c4e863cd39fd3",
+            "warnings": [],
+            "note": "Checked items receive full credit as user confirmations. Unchecked items use uploaded metadata coverage and structure. Statements are not independently verified."
+          },
+          "excluded_indicators": [],
+          "weight": 2.5,
+          "weight_percentage": 7.74
+        },
+        {
+          "dimension": "Data Quality",
+          "applicable": true,
+          "score": 98.0,
+          "indicators": [
+            {
+              "name": "% numeric values without outliers",
+              "value": 96.0,
+              "weight": 1
+            },
+            {
+              "name": "% non-constant columns",
+              "value": 100.0,
+              "weight": 1
+            }
+          ],
+          "problems": [
+            "Column 'Churned' has 192 outlier(s) under the IQR rule"
+          ],
+          "recommendations": [
+            "Review the outliers in column 'Churned' and treat them when appropriate"
+          ],
+          "weight": 15.1,
+          "weight_percentage": 46.75
+        }
+      ]
+    }
+  },
+  "without_metadata": {
+    "score": 75.5,
+    "classification": "Almost ready",
+    "weight_source": "study_defaults",
+    "dimensions": [
+      {
+        "dimension": "Completeness",
+        "applicable": true,
+        "score": 94.08,
+        "indicators": [
+          {
+            "name": "% filled cells",
+            "value": 97.78,
+            "weight": 1
+          },
+          {
+            "name": "% columns with less than 20% missing",
+            "value": 100.0,
+            "weight": 1
+          },
+          {
+            "name": "% complete rows",
+            "value": 81.4,
+            "weight": 1
+          },
+          {
+            "name": "% filled in important columns",
+            "value": 97.14,
+            "weight": 1
+          }
+        ],
+        "problems": [
+          "Column 'Age' has 3.5% missing values",
+          "Column 'MonthlySpend' has 4.0% missing values",
+          "Column 'TenureMonths' has 3.0% missing values",
+          "Column 'SupportTickets' has 2.0% missing values",
+          "Column 'Plan' has 3.5% missing values",
+          "Column 'Region' has 2.5% missing values",
+          "Column 'Contract' has 1.5% missing values"
+        ],
+        "recommendations": [
+          "Remove or impute the missing values in column 'Age'",
+          "Remove or impute the missing values in column 'MonthlySpend'",
+          "Remove or impute the missing values in column 'TenureMonths'",
+          "Remove or impute the missing values in column 'SupportTickets'",
+          "Remove or impute the missing values in column 'Plan'",
+          "Remove or impute the missing values in column 'Region'",
+          "Remove or impute the missing values in column 'Contract'"
+        ],
+        "weight": 7.8,
+        "weight_percentage": 24.15
+      },
+      {
+        "dimension": "Consistency",
+        "applicable": true,
+        "score": 82.0,
+        "indicators": [
+          {
+            "name": "% non-duplicate rows",
+            "value": 96.0,
+            "weight": 1
+          },
+          {
+            "name": "% columns with consistent types",
+            "value": 100.0,
+            "weight": 1
+          },
+          {
+            "name": "% categorical columns without text variants",
+            "value": 50.0,
+            "weight": 1
+          }
+        ],
+        "problems": [
+          "Dataset has 40 duplicate row(s)",
+          "Column 'Plan' has case or whitespace variants",
+          "Column 'Region' has case or whitespace variants"
+        ],
+        "recommendations": [
+          "Review and remove duplicate rows",
+          "Standardize the text values in column 'Plan'",
+          "Standardize the text values in column 'Region'"
+        ],
+        "weight": 2.1,
+        "weight_percentage": 6.5
+      },
+      {
+        "dimension": "Class Balance",
+        "applicable": true,
+        "score": 25.0,
+        "indicators": [
+          {
+            "name": "Minority-to-majority class ratio",
+            "value": 25.0,
+            "weight": 1
+          }
+        ],
+        "problems": [],
+        "recommendations": [],
+        "class_distribution": {
+          "classes": [
+            {
+              "label": "0",
+              "count": 800
+            },
+            {
+              "label": "1",
+              "count": 200
+            }
+          ],
+          "other_count": 0,
+          "missing_count": 0
+        },
+        "weight": 2.3,
+        "weight_percentage": 7.12
+      },
+      {
+        "dimension": "Documentation",
+        "applicable": true,
+        "score": 0.0,
+        "indicators": [
+          {
+            "name": "Variable descriptions",
+            "value": 0.0,
+            "weight": 1,
+            "item": "variable_descriptions",
+            "status": "missing",
+            "self_reported": false,
+            "source": null,
+            "field": "columns",
+            "evidence": {},
+            "detail": "0/9 dataset columns covered."
+          },
+          {
+            "name": "Target definition",
+            "value": 0.0,
+            "weight": 1,
+            "item": "target_definition",
+            "status": "missing",
+            "self_reported": false,
+            "source": null,
+            "field": "documentation.target_definition",
+            "evidence": null,
+            "detail": "Define the selected target column and its meaning."
+          },
+          {
+            "name": "Data collection method",
+            "value": 0.0,
+            "weight": 1,
+            "item": "data_collection",
+            "status": "missing",
+            "self_reported": false,
+            "source": null,
+            "field": "documentation.data_collection",
+            "evidence": null,
+            "detail": "Supply a non-empty text value."
+          },
+          {
+            "name": "Collection period",
+            "value": 0.0,
+            "weight": 1,
+            "item": "collection_period",
+            "status": "missing",
+            "self_reported": false,
+            "source": null,
+            "field": "documentation.collection_period",
+            "evidence": null,
+            "detail": "Supply start/end ISO dates (YYYY-MM-DD), with start <= end."
+          },
+          {
+            "name": "Units and categories",
+            "value": 0.0,
+            "weight": 1,
+            "item": "units_and_categories",
+            "status": "missing",
+            "self_reported": false,
+            "source": null,
+            "field": "columns",
+            "evidence": {},
+            "detail": "0/9 dataset columns covered."
+          },
+          {
+            "name": "Known limitations",
+            "value": 0.0,
+            "weight": 1,
+            "item": "known_limitations",
+            "status": "missing",
+            "self_reported": false,
+            "source": null,
+            "field": "documentation.known_limitations",
+            "evidence": null,
+            "detail": "Supply a non-empty list of limitations; explicitly state if none are known."
+          }
+        ],
+        "problems": [
+          "Incomplete documentation: variable descriptions. 0/9 dataset columns covered.",
+          "Incomplete documentation: target definition. Define the selected target column and its meaning.",
+          "Incomplete documentation: data collection method. Supply a non-empty text value.",
+          "Incomplete documentation: collection period. Supply start/end ISO dates (YYYY-MM-DD), with start <= end.",
+          "Incomplete documentation: units and categories. 0/9 dataset columns covered.",
+          "Incomplete documentation: known limitations. Supply a non-empty list of limitations; explicitly state if none are known."
+        ],
+        "recommendations": [
+          "Confirm variable descriptions with its checkbox, or supply columns in an uploaded metadata file. 0/9 dataset columns covered.",
+          "Confirm target definition with its checkbox, or supply documentation.target_definition in an uploaded metadata file. Define the selected target column and its meaning.",
+          "Confirm data collection method with its checkbox, or supply documentation.data_collection in an uploaded metadata file. Supply a non-empty text value.",
+          "Confirm collection period with its checkbox, or supply documentation.collection_period in an uploaded metadata file. Supply start/end ISO dates (YYYY-MM-DD), with start <= end.",
+          "Confirm units and categories with its checkbox, or supply columns in an uploaded metadata file. 0/9 dataset columns covered.",
+          "Confirm known limitations with its checkbox, or supply documentation.known_limitations in an uploaded metadata file. Supply a non-empty list of limitations; explicitly state if none are known."
+        ],
+        "assessment": {
+          "method": "checkbox_then_metadata",
+          "source": null,
+          "dataset_sha256": null,
+          "warnings": [],
+          "note": "Checked items receive full credit as user confirmations. Unchecked items use uploaded metadata coverage and structure. Statements are not independently verified."
+        },
+        "excluded_indicators": [],
+        "weight": 2.5,
+        "weight_percentage": 7.74
+      },
+      {
+        "dimension": "Provenance",
+        "applicable": true,
+        "score": 0.0,
+        "indicators": [
+          {
+            "name": "Data origin",
+            "value": 0.0,
+            "weight": 1,
+            "item": "origin",
+            "status": "missing",
+            "self_reported": false,
+            "source": null,
+            "field": "provenance.origin",
+            "evidence": null,
+            "detail": "Supply a non-empty text value."
+          },
+          {
+            "name": "Data collector",
+            "value": 0.0,
+            "weight": 1,
+            "item": "collector",
+            "status": "missing",
+            "self_reported": false,
+            "source": null,
+            "field": "provenance.collector",
+            "evidence": null,
+            "detail": "Supply a non-empty text value."
+          },
+          {
+            "name": "Generation period",
+            "value": 0.0,
+            "weight": 1,
+            "item": "generation_period",
+            "status": "missing",
+            "self_reported": false,
+            "source": null,
+            "field": "provenance.generation_period",
+            "evidence": null,
+            "detail": "Supply start/end ISO dates (YYYY-MM-DD), with start <= end."
+          },
+          {
+            "name": "Applied transformations",
+            "value": 0.0,
+            "weight": 1,
+            "item": "transformations",
+            "status": "missing",
+            "self_reported": false,
+            "source": null,
+            "field": "provenance.transformations",
+            "evidence": null,
+            "detail": "List the transformations; explicitly state if the data is raw."
+          },
+          {
+            "name": "Dataset version",
+            "value": 0.0,
+            "weight": 1,
+            "item": "version",
+            "status": "missing",
+            "self_reported": false,
+            "source": null,
+            "field": "provenance.version",
+            "evidence": null,
+            "detail": "Supply a non-empty text value."
+          }
+        ],
+        "problems": [
+          "Incomplete provenance: data origin. Supply a non-empty text value.",
+          "Incomplete provenance: data collector. Supply a non-empty text value.",
+          "Incomplete provenance: generation period. Supply start/end ISO dates (YYYY-MM-DD), with start <= end.",
+          "Incomplete provenance: applied transformations. List the transformations; explicitly state if the data is raw.",
+          "Incomplete provenance: dataset version. Supply a non-empty text value."
+        ],
+        "recommendations": [
+          "Confirm data origin with its checkbox, or supply provenance.origin in an uploaded metadata file. Supply a non-empty text value.",
+          "Confirm data collector with its checkbox, or supply provenance.collector in an uploaded metadata file. Supply a non-empty text value.",
+          "Confirm generation period with its checkbox, or supply provenance.generation_period in an uploaded metadata file. Supply start/end ISO dates (YYYY-MM-DD), with start <= end.",
+          "Confirm applied transformations with its checkbox, or supply provenance.transformations in an uploaded metadata file. List the transformations; explicitly state if the data is raw.",
+          "Confirm dataset version with its checkbox, or supply provenance.version in an uploaded metadata file. Supply a non-empty text value."
+        ],
+        "assessment": {
+          "method": "checkbox_then_metadata",
+          "source": null,
+          "dataset_sha256": null,
+          "warnings": [],
+          "note": "Checked items receive full credit as user confirmations. Unchecked items use uploaded metadata coverage and structure. Statements are not independently verified."
+        },
+        "excluded_indicators": [],
+        "weight": 2.5,
+        "weight_percentage": 7.74
+      },
+      {
+        "dimension": "Data Quality",
+        "applicable": true,
+        "score": 97.7,
+        "indicators": [
+          {
+            "name": "% numeric values without outliers",
+            "value": 95.41,
+            "weight": 1
+          },
+          {
+            "name": "% non-constant columns",
+            "value": 100.0,
+            "weight": 1
+          }
+        ],
+        "problems": [
+          "Column 'MonthlySpend' has 24 outlier(s) under the IQR rule",
+          "Column 'Churned' has 200 outlier(s) under the IQR rule"
+        ],
+        "recommendations": [
+          "Review the outliers in column 'MonthlySpend' and treat them when appropriate",
+          "Review the outliers in column 'Churned' and treat them when appropriate"
+        ],
+        "weight": 15.1,
+        "weight_percentage": 46.75
+      }
+    ]
+  },
+  "scale_only_comparison": {
+    "original": {
+      "score": 90.98,
+      "classification": "Ready",
+      "weight_source": "study_defaults",
+      "dimensions": [
+        {
+          "dimension": "Completeness",
+          "applicable": true,
+          "score": 94.08,
+          "indicators": [
+            {
+              "name": "% filled cells",
+              "value": 97.78,
+              "weight": 1
+            },
+            {
+              "name": "% columns with less than 20% missing",
+              "value": 100.0,
+              "weight": 1
+            },
+            {
+              "name": "% complete rows",
+              "value": 81.4,
+              "weight": 1
+            },
+            {
+              "name": "% filled in important columns",
+              "value": 97.14,
+              "weight": 1
+            }
+          ],
+          "problems": [
+            "Column 'Age' has 3.5% missing values",
+            "Column 'MonthlySpend' has 4.0% missing values",
+            "Column 'TenureMonths' has 3.0% missing values",
+            "Column 'SupportTickets' has 2.0% missing values",
+            "Column 'Plan' has 3.5% missing values",
+            "Column 'Region' has 2.5% missing values",
+            "Column 'Contract' has 1.5% missing values"
+          ],
+          "recommendations": [
+            "Remove or impute the missing values in column 'Age'",
+            "Remove or impute the missing values in column 'MonthlySpend'",
+            "Remove or impute the missing values in column 'TenureMonths'",
+            "Remove or impute the missing values in column 'SupportTickets'",
+            "Remove or impute the missing values in column 'Plan'",
+            "Remove or impute the missing values in column 'Region'",
+            "Remove or impute the missing values in column 'Contract'"
+          ],
+          "weight": 7.8,
+          "weight_percentage": 24.15
+        },
+        {
+          "dimension": "Consistency",
+          "applicable": true,
+          "score": 82.0,
+          "indicators": [
+            {
+              "name": "% non-duplicate rows",
+              "value": 96.0,
+              "weight": 1
+            },
+            {
+              "name": "% columns with consistent types",
+              "value": 100.0,
+              "weight": 1
+            },
+            {
+              "name": "% categorical columns without text variants",
+              "value": 50.0,
+              "weight": 1
+            }
+          ],
+          "problems": [
+            "Dataset has 40 duplicate row(s)",
+            "Column 'Plan' has case or whitespace variants",
+            "Column 'Region' has case or whitespace variants"
+          ],
+          "recommendations": [
+            "Review and remove duplicate rows",
+            "Standardize the text values in column 'Plan'",
+            "Standardize the text values in column 'Region'"
+          ],
+          "weight": 2.1,
+          "weight_percentage": 6.5
+        },
+        {
+          "dimension": "Class Balance",
+          "applicable": true,
+          "score": 25.0,
+          "indicators": [
+            {
+              "name": "Minority-to-majority class ratio",
+              "value": 25.0,
+              "weight": 1
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "class_distribution": {
+            "classes": [
+              {
+                "label": "0",
+                "count": 800
+              },
+              {
+                "label": "1",
+                "count": 200
+              }
+            ],
+            "other_count": 0,
+            "missing_count": 0
+          },
+          "weight": 2.3,
+          "weight_percentage": 7.12
+        },
+        {
+          "dimension": "Documentation",
+          "applicable": true,
+          "score": 100.0,
+          "indicators": [
+            {
+              "name": "Variable descriptions",
+              "value": 100.0,
+              "weight": 1,
+              "item": "variable_descriptions",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "columns",
+              "evidence": {
+                "CustomerID": {
+                  "description": "Synthetic customer identifier. Duplicate records repeat this identifier. Exclude from normalization.",
+                  "unit": "Not applicable (identifier)"
+                },
+                "Age": {
+                  "description": "Simulated customer age.",
+                  "unit": "years"
+                },
+                "MonthlySpend": {
+                  "description": "Simulated monthly subscription spend. Includes deliberately injected outliers.",
+                  "unit": "currency units per month"
+                },
+                "TenureMonths": {
+                  "description": "Simulated length of subscription.",
+                  "unit": "months"
+                },
+                "SupportTickets": {
+                  "description": "Simulated support requests during the observation period.",
+                  "unit": "requests"
+                },
+                "Plan": {
+                  "description": "Subscription tier, with deliberate case/whitespace variants.",
+                  "categories": {
+                    "basic": "Basic tier",
+                    "standard": "Standard tier",
+                    "premium": "Premium tier"
+                  }
+                },
+                "Region": {
+                  "description": "Fictional customer region, with deliberate text variants.",
+                  "categories": {
+                    "north": "North",
+                    "south": "South",
+                    "east": "East",
+                    "west": "West"
+                  }
+                },
+                "Contract": {
+                  "description": "Subscription billing contract.",
+                  "categories": {
+                    "Monthly": "Monthly contract",
+                    "Annual": "Annual contract"
+                  }
+                },
+                "Churned": {
+                  "description": "Simulated classification target.",
+                  "categories": {
+                    "0": "Retained customer",
+                    "1": "Cancelled subscription"
+                  }
+                }
+              },
+              "detail": "9/9 dataset columns covered."
+            },
+            {
+              "name": "Target definition",
+              "value": 100.0,
+              "weight": 1,
+              "item": "target_definition",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.target_definition",
+              "evidence": {
+                "column": "Churned",
+                "description": "Predict simulated customer cancellation: 1 cancelled, 0 retained."
+              },
+              "detail": "Define the selected target column and its meaning."
+            },
+            {
+              "name": "Data collection method",
+              "value": 100.0,
+              "weight": 1,
+              "item": "data_collection",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.data_collection",
+              "evidence": "Generated locally from a deterministic simulation. No real customer records were collected.",
+              "detail": "Supply a non-empty text value."
+            },
+            {
+              "name": "Collection period",
+              "value": 100.0,
+              "weight": 1,
+              "item": "collection_period",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.collection_period",
+              "evidence": {
+                "start": "2026-10-30",
+                "end": "2026-10-30"
+              },
+              "detail": "Supply start/end ISO dates (YYYY-MM-DD), with start <= end."
+            },
+            {
+              "name": "Units and categories",
+              "value": 100.0,
+              "weight": 1,
+              "item": "units_and_categories",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "columns",
+              "evidence": {
+                "CustomerID": {
+                  "description": "Synthetic customer identifier. Duplicate records repeat this identifier. Exclude from normalization.",
+                  "unit": "Not applicable (identifier)"
+                },
+                "Age": {
+                  "description": "Simulated customer age.",
+                  "unit": "years"
+                },
+                "MonthlySpend": {
+                  "description": "Simulated monthly subscription spend. Includes deliberately injected outliers.",
+                  "unit": "currency units per month"
+                },
+                "TenureMonths": {
+                  "description": "Simulated length of subscription.",
+                  "unit": "months"
+                },
+                "SupportTickets": {
+                  "description": "Simulated support requests during the observation period.",
+                  "unit": "requests"
+                },
+                "Plan": {
+                  "description": "Subscription tier, with deliberate case/whitespace variants.",
+                  "categories": {
+                    "basic": "Basic tier",
+                    "standard": "Standard tier",
+                    "premium": "Premium tier"
+                  }
+                },
+                "Region": {
+                  "description": "Fictional customer region, with deliberate text variants.",
+                  "categories": {
+                    "north": "North",
+                    "south": "South",
+                    "east": "East",
+                    "west": "West"
+                  }
+                },
+                "Contract": {
+                  "description": "Subscription billing contract.",
+                  "categories": {
+                    "Monthly": "Monthly contract",
+                    "Annual": "Annual contract"
+                  }
+                },
+                "Churned": {
+                  "description": "Simulated classification target.",
+                  "categories": {
+                    "0": "Retained customer",
+                    "1": "Cancelled subscription"
+                  }
+                }
+              },
+              "detail": "9/9 dataset columns covered."
+            },
+            {
+              "name": "Known limitations",
+              "value": 100.0,
+              "weight": 1,
+              "item": "known_limitations",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.known_limitations",
+              "evidence": [
+                "Synthetic classroom dataset, not observations of real customers.",
+                "Contains deliberate issues described in the answer key.",
+                "80/20 class imbalance is included for inspection; the app does not currently rebalance classes.",
+                "This file demonstrates preparation, not validated predictive performance."
+              ],
+              "detail": "Supply a non-empty list of limitations; explicitly state if none are known."
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "assessment": {
+            "method": "checkbox_then_metadata",
+            "source": "churn_showcase_1000_metadata.json",
+            "dataset_sha256": "877e60bd19e3980c1e90e15306e52e502b08640652420ea5c45c4e863cd39fd3",
+            "warnings": [],
+            "note": "Checked items receive full credit as user confirmations. Unchecked items use uploaded metadata coverage and structure. Statements are not independently verified."
+          },
+          "excluded_indicators": [],
+          "weight": 2.5,
+          "weight_percentage": 7.74
+        },
+        {
+          "dimension": "Provenance",
+          "applicable": true,
+          "score": 100.0,
+          "indicators": [
+            {
+              "name": "Data origin",
+              "value": 100.0,
+              "weight": 1,
+              "item": "origin",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.origin",
+              "evidence": "Monolith synthetic preparation showcase",
+              "detail": "Supply a non-empty text value."
+            },
+            {
+              "name": "Data collector",
+              "value": 100.0,
+              "weight": 1,
+              "item": "collector",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.collector",
+              "evidence": "Deterministic local generator",
+              "detail": "Supply a non-empty text value."
+            },
+            {
+              "name": "Generation period",
+              "value": 100.0,
+              "weight": 1,
+              "item": "generation_period",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.generation_period",
+              "evidence": {
+                "start": "2026-10-30",
+                "end": "2026-10-30"
+              },
+              "detail": "Supply start/end ISO dates (YYYY-MM-DD), with start <= end."
+            },
+            {
+              "name": "Applied transformations",
+              "value": 100.0,
+              "weight": 1,
+              "item": "transformations",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.transformations",
+              "evidence": [
+                "Seed 20261030: generated 960 unique fictional customers and simulated labels.",
+                "Injected 200 missing cells, 24 high-spend outliers, 36 Plan variants, and 32 Region variants.",
+                "Added 40 exact duplicate rows and shuffled all 1000 records. No cleaning or scaling applied."
+              ],
+              "detail": "List the transformations; explicitly state if the data is raw."
+            },
+            {
+              "name": "Dataset version",
+              "value": 100.0,
+              "weight": 1,
+              "item": "version",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.version",
+              "evidence": "1.0",
+              "detail": "Supply a non-empty text value."
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "assessment": {
+            "method": "checkbox_then_metadata",
+            "source": "churn_showcase_1000_metadata.json",
+            "dataset_sha256": "877e60bd19e3980c1e90e15306e52e502b08640652420ea5c45c4e863cd39fd3",
+            "warnings": [],
+            "note": "Checked items receive full credit as user confirmations. Unchecked items use uploaded metadata coverage and structure. Statements are not independently verified."
+          },
+          "excluded_indicators": [],
+          "weight": 2.5,
+          "weight_percentage": 7.74
+        },
+        {
+          "dimension": "Data Quality",
+          "applicable": true,
+          "score": 97.7,
+          "indicators": [
+            {
+              "name": "% numeric values without outliers",
+              "value": 95.41,
+              "weight": 1
+            },
+            {
+              "name": "% non-constant columns",
+              "value": 100.0,
+              "weight": 1
+            }
+          ],
+          "problems": [
+            "Column 'MonthlySpend' has 24 outlier(s) under the IQR rule",
+            "Column 'Churned' has 200 outlier(s) under the IQR rule"
+          ],
+          "recommendations": [
+            "Review the outliers in column 'MonthlySpend' and treat them when appropriate",
+            "Review the outliers in column 'Churned' and treat them when appropriate"
+          ],
+          "weight": 15.1,
+          "weight_percentage": 46.75
+        }
+      ]
+    },
+    "prepared": {
+      "score": 90.98,
+      "classification": "Ready",
+      "weight_source": "study_defaults",
+      "dimensions": [
+        {
+          "dimension": "Completeness",
+          "applicable": true,
+          "score": 94.08,
+          "indicators": [
+            {
+              "name": "% filled cells",
+              "value": 97.78,
+              "weight": 1
+            },
+            {
+              "name": "% columns with less than 20% missing",
+              "value": 100.0,
+              "weight": 1
+            },
+            {
+              "name": "% complete rows",
+              "value": 81.4,
+              "weight": 1
+            },
+            {
+              "name": "% filled in important columns",
+              "value": 97.14,
+              "weight": 1
+            }
+          ],
+          "problems": [
+            "Column 'Age' has 3.5% missing values",
+            "Column 'MonthlySpend' has 4.0% missing values",
+            "Column 'TenureMonths' has 3.0% missing values",
+            "Column 'SupportTickets' has 2.0% missing values",
+            "Column 'Plan' has 3.5% missing values",
+            "Column 'Region' has 2.5% missing values",
+            "Column 'Contract' has 1.5% missing values"
+          ],
+          "recommendations": [
+            "Remove or impute the missing values in column 'Age'",
+            "Remove or impute the missing values in column 'MonthlySpend'",
+            "Remove or impute the missing values in column 'TenureMonths'",
+            "Remove or impute the missing values in column 'SupportTickets'",
+            "Remove or impute the missing values in column 'Plan'",
+            "Remove or impute the missing values in column 'Region'",
+            "Remove or impute the missing values in column 'Contract'"
+          ],
+          "weight": 7.8,
+          "weight_percentage": 24.15
+        },
+        {
+          "dimension": "Consistency",
+          "applicable": true,
+          "score": 82.0,
+          "indicators": [
+            {
+              "name": "% non-duplicate rows",
+              "value": 96.0,
+              "weight": 1
+            },
+            {
+              "name": "% columns with consistent types",
+              "value": 100.0,
+              "weight": 1
+            },
+            {
+              "name": "% categorical columns without text variants",
+              "value": 50.0,
+              "weight": 1
+            }
+          ],
+          "problems": [
+            "Dataset has 40 duplicate row(s)",
+            "Column 'Plan' has case or whitespace variants",
+            "Column 'Region' has case or whitespace variants"
+          ],
+          "recommendations": [
+            "Review and remove duplicate rows",
+            "Standardize the text values in column 'Plan'",
+            "Standardize the text values in column 'Region'"
+          ],
+          "weight": 2.1,
+          "weight_percentage": 6.5
+        },
+        {
+          "dimension": "Class Balance",
+          "applicable": true,
+          "score": 25.0,
+          "indicators": [
+            {
+              "name": "Minority-to-majority class ratio",
+              "value": 25.0,
+              "weight": 1
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "class_distribution": {
+            "classes": [
+              {
+                "label": "0",
+                "count": 800
+              },
+              {
+                "label": "1",
+                "count": 200
+              }
+            ],
+            "other_count": 0,
+            "missing_count": 0
+          },
+          "weight": 2.3,
+          "weight_percentage": 7.12
+        },
+        {
+          "dimension": "Documentation",
+          "applicable": true,
+          "score": 100.0,
+          "indicators": [
+            {
+              "name": "Variable descriptions",
+              "value": 100.0,
+              "weight": 1,
+              "item": "variable_descriptions",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "columns",
+              "evidence": {
+                "CustomerID": {
+                  "description": "Synthetic customer identifier. Duplicate records repeat this identifier. Exclude from normalization.",
+                  "unit": "Not applicable (identifier)"
+                },
+                "Age": {
+                  "description": "Simulated customer age.",
+                  "unit": "years"
+                },
+                "MonthlySpend": {
+                  "description": "Simulated monthly subscription spend. Includes deliberately injected outliers.",
+                  "unit": "currency units per month"
+                },
+                "TenureMonths": {
+                  "description": "Simulated length of subscription.",
+                  "unit": "months"
+                },
+                "SupportTickets": {
+                  "description": "Simulated support requests during the observation period.",
+                  "unit": "requests"
+                },
+                "Plan": {
+                  "description": "Subscription tier, with deliberate case/whitespace variants.",
+                  "categories": {
+                    "basic": "Basic tier",
+                    "standard": "Standard tier",
+                    "premium": "Premium tier"
+                  }
+                },
+                "Region": {
+                  "description": "Fictional customer region, with deliberate text variants.",
+                  "categories": {
+                    "north": "North",
+                    "south": "South",
+                    "east": "East",
+                    "west": "West"
+                  }
+                },
+                "Contract": {
+                  "description": "Subscription billing contract.",
+                  "categories": {
+                    "Monthly": "Monthly contract",
+                    "Annual": "Annual contract"
+                  }
+                },
+                "Churned": {
+                  "description": "Simulated classification target.",
+                  "categories": {
+                    "0": "Retained customer",
+                    "1": "Cancelled subscription"
+                  }
+                }
+              },
+              "detail": "9/9 dataset columns covered."
+            },
+            {
+              "name": "Target definition",
+              "value": 100.0,
+              "weight": 1,
+              "item": "target_definition",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.target_definition",
+              "evidence": {
+                "column": "Churned",
+                "description": "Predict simulated customer cancellation: 1 cancelled, 0 retained."
+              },
+              "detail": "Define the selected target column and its meaning."
+            },
+            {
+              "name": "Data collection method",
+              "value": 100.0,
+              "weight": 1,
+              "item": "data_collection",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.data_collection",
+              "evidence": "Generated locally from a deterministic simulation. No real customer records were collected.",
+              "detail": "Supply a non-empty text value."
+            },
+            {
+              "name": "Collection period",
+              "value": 100.0,
+              "weight": 1,
+              "item": "collection_period",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.collection_period",
+              "evidence": {
+                "start": "2026-10-30",
+                "end": "2026-10-30"
+              },
+              "detail": "Supply start/end ISO dates (YYYY-MM-DD), with start <= end."
+            },
+            {
+              "name": "Units and categories",
+              "value": 100.0,
+              "weight": 1,
+              "item": "units_and_categories",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "columns",
+              "evidence": {
+                "CustomerID": {
+                  "description": "Synthetic customer identifier. Duplicate records repeat this identifier. Exclude from normalization.",
+                  "unit": "Not applicable (identifier)"
+                },
+                "Age": {
+                  "description": "Simulated customer age.",
+                  "unit": "years"
+                },
+                "MonthlySpend": {
+                  "description": "Simulated monthly subscription spend. Includes deliberately injected outliers.",
+                  "unit": "currency units per month"
+                },
+                "TenureMonths": {
+                  "description": "Simulated length of subscription.",
+                  "unit": "months"
+                },
+                "SupportTickets": {
+                  "description": "Simulated support requests during the observation period.",
+                  "unit": "requests"
+                },
+                "Plan": {
+                  "description": "Subscription tier, with deliberate case/whitespace variants.",
+                  "categories": {
+                    "basic": "Basic tier",
+                    "standard": "Standard tier",
+                    "premium": "Premium tier"
+                  }
+                },
+                "Region": {
+                  "description": "Fictional customer region, with deliberate text variants.",
+                  "categories": {
+                    "north": "North",
+                    "south": "South",
+                    "east": "East",
+                    "west": "West"
+                  }
+                },
+                "Contract": {
+                  "description": "Subscription billing contract.",
+                  "categories": {
+                    "Monthly": "Monthly contract",
+                    "Annual": "Annual contract"
+                  }
+                },
+                "Churned": {
+                  "description": "Simulated classification target.",
+                  "categories": {
+                    "0": "Retained customer",
+                    "1": "Cancelled subscription"
+                  }
+                }
+              },
+              "detail": "9/9 dataset columns covered."
+            },
+            {
+              "name": "Known limitations",
+              "value": 100.0,
+              "weight": 1,
+              "item": "known_limitations",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "documentation.known_limitations",
+              "evidence": [
+                "Synthetic classroom dataset, not observations of real customers.",
+                "Contains deliberate issues described in the answer key.",
+                "80/20 class imbalance is included for inspection; the app does not currently rebalance classes.",
+                "This file demonstrates preparation, not validated predictive performance."
+              ],
+              "detail": "Supply a non-empty list of limitations; explicitly state if none are known."
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "assessment": {
+            "method": "checkbox_then_metadata",
+            "source": "churn_showcase_1000_metadata.json",
+            "dataset_sha256": "877e60bd19e3980c1e90e15306e52e502b08640652420ea5c45c4e863cd39fd3",
+            "warnings": [],
+            "note": "Checked items receive full credit as user confirmations. Unchecked items use uploaded metadata coverage and structure. Statements are not independently verified."
+          },
+          "excluded_indicators": [],
+          "weight": 2.5,
+          "weight_percentage": 7.74
+        },
+        {
+          "dimension": "Provenance",
+          "applicable": true,
+          "score": 100.0,
+          "indicators": [
+            {
+              "name": "Data origin",
+              "value": 100.0,
+              "weight": 1,
+              "item": "origin",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.origin",
+              "evidence": "Monolith synthetic preparation showcase",
+              "detail": "Supply a non-empty text value."
+            },
+            {
+              "name": "Data collector",
+              "value": 100.0,
+              "weight": 1,
+              "item": "collector",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.collector",
+              "evidence": "Deterministic local generator",
+              "detail": "Supply a non-empty text value."
+            },
+            {
+              "name": "Generation period",
+              "value": 100.0,
+              "weight": 1,
+              "item": "generation_period",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.generation_period",
+              "evidence": {
+                "start": "2026-10-30",
+                "end": "2026-10-30"
+              },
+              "detail": "Supply start/end ISO dates (YYYY-MM-DD), with start <= end."
+            },
+            {
+              "name": "Applied transformations",
+              "value": 100.0,
+              "weight": 1,
+              "item": "transformations",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.transformations",
+              "evidence": [
+                "Seed 20261030: generated 960 unique fictional customers and simulated labels.",
+                "Injected 200 missing cells, 24 high-spend outliers, 36 Plan variants, and 32 Region variants.",
+                "Added 40 exact duplicate rows and shuffled all 1000 records. No cleaning or scaling applied."
+              ],
+              "detail": "List the transformations; explicitly state if the data is raw."
+            },
+            {
+              "name": "Dataset version",
+              "value": 100.0,
+              "weight": 1,
+              "item": "version",
+              "status": "documented",
+              "self_reported": false,
+              "source": "churn_showcase_1000_metadata.json",
+              "field": "provenance.version",
+              "evidence": "1.0",
+              "detail": "Supply a non-empty text value."
+            }
+          ],
+          "problems": [],
+          "recommendations": [],
+          "assessment": {
+            "method": "checkbox_then_metadata",
+            "source": "churn_showcase_1000_metadata.json",
+            "dataset_sha256": "877e60bd19e3980c1e90e15306e52e502b08640652420ea5c45c4e863cd39fd3",
+            "warnings": [],
+            "note": "Checked items receive full credit as user confirmations. Unchecked items use uploaded metadata coverage and structure. Statements are not independently verified."
+          },
+          "excluded_indicators": [],
+          "weight": 2.5,
+          "weight_percentage": 7.74
+        },
+        {
+          "dimension": "Data Quality",
+          "applicable": true,
+          "score": 97.7,
+          "indicators": [
+            {
+              "name": "% numeric values without outliers",
+              "value": 95.41,
+              "weight": 1
+            },
+            {
+              "name": "% non-constant columns",
+              "value": 100.0,
+              "weight": 1
+            }
+          ],
+          "problems": [
+            "Column 'MonthlySpend' has 24 outlier(s) under the IQR rule",
+            "Column 'Churned' has 200 outlier(s) under the IQR rule"
+          ],
+          "recommendations": [
+            "Review the outliers in column 'MonthlySpend' and treat them when appropriate",
+            "Review the outliers in column 'Churned' and treat them when appropriate"
+          ],
+          "weight": 15.1,
+          "weight_percentage": 46.75
+        }
+      ]
+    }
+  },
+  "before": {
+    "rows": 1000,
+    "missing_cells": 200,
+    "duplicates": 40,
+    "spend_outliers": 24,
+    "target_counts": {
+      "0": 800,
+      "1": 200
+    }
+  },
+  "after": {
+    "rows": 960,
+    "missing_cells": 0,
+    "duplicates": 0,
+    "spend_outliers": 0,
+    "target_counts": {
+      "0": 768,
+      "1": 192
+    }
+  },
+  "history": [
+    {
+      "action": "duplicates",
+      "column": null,
+      "parameters": {
+        "keep": "first",
+        "scope": "all columns"
+      },
+      "affected_rows": 40,
+      "changed_cells": 0,
+      "removed_rows": 40
+    },
+    {
+      "action": "casefold",
+      "column": "Plan",
+      "parameters": {},
+      "affected_rows": 925,
+      "changed_cells": 925,
+      "removed_rows": 0
+    },
+    {
+      "action": "casefold",
+      "column": "Region",
+      "parameters": {},
+      "affected_rows": 935,
+      "changed_cells": 935,
+      "removed_rows": 0
+    },
+    {
+      "action": "fill_median",
+      "column": "Age",
+      "parameters": {
+        "value": 47.0
+      },
+      "affected_rows": 35,
+      "changed_cells": 35,
+      "removed_rows": 0
+    },
+    {
+      "action": "fill_median",
+      "column": "MonthlySpend",
+      "parameters": {
+        "value": 64.58
+      },
+      "affected_rows": 40,
+      "changed_cells": 40,
+      "removed_rows": 0
+    },
+    {
+      "action": "fill_median",
+      "column": "TenureMonths",
+      "parameters": {
+        "value": 29.0
+      },
+      "affected_rows": 30,
+      "changed_cells": 30,
+      "removed_rows": 0
+    },
+    {
+      "action": "fill_median",
+      "column": "SupportTickets",
+      "parameters": {
+        "value": 2.0
+      },
+      "affected_rows": 20,
+      "changed_cells": 20,
+      "removed_rows": 0
+    },
+    {
+      "action": "fill_mode",
+      "column": "Plan",
+      "parameters": {
+        "value": "standard"
+      },
+      "affected_rows": 35,
+      "changed_cells": 35,
+      "removed_rows": 0
+    },
+    {
+      "action": "fill_mode",
+      "column": "Region",
+      "parameters": {
+        "value": "east"
+      },
+      "affected_rows": 25,
+      "changed_cells": 25,
+      "removed_rows": 0
+    },
+    {
+      "action": "fill_mode",
+      "column": "Contract",
+      "parameters": {
+        "value": "Monthly"
+      },
+      "affected_rows": 15,
+      "changed_cells": 15,
+      "removed_rows": 0
+    },
+    {
+      "action": "clip_outliers",
+      "column": "MonthlySpend",
+      "parameters": {
+        "lower": -11.994999999999981,
+        "upper": 140.605,
+        "tolerance": 2.9622526653838575e-13
+      },
+      "affected_rows": 24,
+      "changed_cells": 24,
+      "removed_rows": 0
+    },
+    {
+      "action": "standardize",
+      "column": "Age",
+      "parameters": {
+        "magnitude": 75.0,
+        "offset": 0.6219722222222223,
+        "divisor": 0.21930318765873869
+      },
+      "affected_rows": 960,
+      "changed_cells": 960,
+      "removed_rows": 0
+    },
+    {
+      "action": "standardize",
+      "column": "MonthlySpend",
+      "parameters": {
+        "magnitude": 140.605,
+        "offset": 0.470200502589998,
+        "divisor": 0.19445990919871942
+      },
+      "affected_rows": 960,
+      "changed_cells": 960,
+      "removed_rows": 0
+    },
+    {
+      "action": "standardize",
+      "column": "TenureMonths",
+      "parameters": {
+        "magnitude": 60.0,
+        "offset": 0.48755208333333333,
+        "divisor": 0.2803826598503085
+      },
+      "affected_rows": 960,
+      "changed_cells": 960,
+      "removed_rows": 0
+    },
+    {
+      "action": "standardize",
+      "column": "SupportTickets",
+      "parameters": {
+        "magnitude": 4.0,
+        "offset": 0.49557291666666664,
+        "divisor": 0.3471141216273975
+      },
+      "affected_rows": 960,
+      "changed_cells": 960,
+      "removed_rows": 0
+    }
+  ]
+}

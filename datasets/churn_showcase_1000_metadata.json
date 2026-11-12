@@ -1,0 +1,88 @@
+{
+  "schema_version": "1",
+  "dataset_sha256": "877e60bd19e3980c1e90e15306e52e502b08640652420ea5c45c4e863cd39fd3",
+  "columns": {
+    "CustomerID": {
+      "description": "Synthetic customer identifier. Duplicate records repeat this identifier. Exclude from normalization.",
+      "unit": "Not applicable (identifier)"
+    },
+    "Age": {
+      "description": "Simulated customer age.",
+      "unit": "years"
+    },
+    "MonthlySpend": {
+      "description": "Simulated monthly subscription spend. Includes deliberately injected outliers.",
+      "unit": "currency units per month"
+    },
+    "TenureMonths": {
+      "description": "Simulated length of subscription.",
+      "unit": "months"
+    },
+    "SupportTickets": {
+      "description": "Simulated support requests during the observation period.",
+      "unit": "requests"
+    },
+    "Plan": {
+      "description": "Subscription tier, with deliberate case/whitespace variants.",
+      "categories": {
+        "basic": "Basic tier",
+        "standard": "Standard tier",
+        "premium": "Premium tier"
+      }
+    },
+    "Region": {
+      "description": "Fictional customer region, with deliberate text variants.",
+      "categories": {
+        "north": "North",
+        "south": "South",
+        "east": "East",
+        "west": "West"
+      }
+    },
+    "Contract": {
+      "description": "Subscription billing contract.",
+      "categories": {
+        "Monthly": "Monthly contract",
+        "Annual": "Annual contract"
+      }
+    },
+    "Churned": {
+      "description": "Simulated classification target.",
+      "categories": {
+        "0": "Retained customer",
+        "1": "Cancelled subscription"
+      }
+    }
+  },
+  "documentation": {
+    "target_definition": {
+      "column": "Churned",
+      "description": "Predict simulated customer cancellation: 1 cancelled, 0 retained."
+    },
+    "data_collection": "Generated locally from a deterministic simulation. No real customer records were collected.",
+    "collection_period": {
+      "start": "2026-10-30",
+      "end": "2026-10-30"
+    },
+    "known_limitations": [
+      "Synthetic classroom dataset, not observations of real customers.",
+      "Contains deliberate issues described in the answer key.",
+      "80/20 class imbalance is included for inspection; the app does not currently rebalance classes.",
+      "This file demonstrates preparation, not validated predictive performance."
+    ]
+  },
+  "provenance": {
+    "origin": "Monolith synthetic preparation showcase",
+    "collector": "Deterministic local generator",
+    "generation_period": {
+      "start": "2026-10-30",
+      "end": "2026-10-30"
+    },
+    "transformations": [
+      "Seed 20261030: generated 960 unique fictional customers and simulated labels.",
+      "Injected 200 missing cells, 24 high-spend outliers, 36 Plan variants, and 32 Region variants.",
+      "Added 40 exact duplicate rows and shuffled all 1000 records. No cleaning or scaling applied."
+    ],
+    "version": "1.0"
+  }
+}

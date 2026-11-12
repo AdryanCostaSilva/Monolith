@@ -71,6 +71,8 @@ in all 40 dataset/split/model pairs.
 ## Provenance
 
 The outputs come from the run of 2026-10-30 (`reproducibility.json`). The `src/` hashes
-recorded there match commit 607a06a, and a re-run on 2026-11-10 at that commit produced
-byte-identical outputs; only `reproducibility.json` itself differs (timestamp and
-`git_head`).
+recorded there match commit 607a06a as checked out on Windows (CRLF line endings), and a
+re-run on 2026-11-10 at that commit produced byte-identical outputs; only
+`reproducibility.json` itself differs (timestamp and `git_head`). The two CSV files are
+stored byte-exact (see `.gitattributes`) because the metadata JSON pins the dataset's
+SHA-256.

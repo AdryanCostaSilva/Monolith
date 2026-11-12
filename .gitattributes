@@ -1,0 +1,4 @@
+# The metadata JSON pins this file's SHA-256, so git must keep its bytes exact
+# (no line-ending conversion), or the hash check fails on other platforms.
+datasets/churn_showcase_1000.csv -text
+evidence/article_results/churn_prepared.csv -text
